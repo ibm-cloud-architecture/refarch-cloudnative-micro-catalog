@@ -1,7 +1,6 @@
 sudo: required
 services:
   - docker
-  - elasticsearch
 env:
   global:
     - IMAGE_NAME=ibmcase/bluecompute-catalog-test
@@ -16,6 +15,8 @@ jobs:
       script: 
       - docker build --pull --cache-from "$IMAGE_NAME" --tag "$IMAGE_NAME" .
     - stage: test
+      services:
+      - elasticsearch
       before_script:
       - docker run --net=host --name=catalog -d -p 8081:8081 -e ELASTICSEARCH_URI="http://elastic:changeme@127.0.0.1:9200" "${IMAGE_NAME}"
       script:
@@ -67,7 +68,7 @@ jobs:
       - helm package chart/catalog
       # helm install
       - CHART_VERSION=$(cat chart/catalog/Chart.yaml | grep version | awk '{print $2}')
-      - helm upgrade --install --name catalog --set service.type=NodePort catalog-${CHART_VERSION}.tgz
+      - helm upgrade --install catalog --set service.type=NodePort catalog-${CHART_VERSION}.tgz
       - sleep 15
       - NODE_PORT=$(kubectl get service bluecompute-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
       # Run api test
