@@ -8,8 +8,6 @@ WORKDIR $BUILD_DIR
 
 # Set permissions
 USER root
-RUN chown -R gradle $BUILD_DIR
-USER gradle
 
 # Download Dependencies
 COPY build.gradle gradlew gradlew.bat $BUILD_DIR
