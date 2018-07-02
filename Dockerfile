@@ -6,12 +6,8 @@ ENV BUILD_DIR=/
 RUN mkdir $BUILD_DIR
 WORKDIR $BUILD_DIR
 
-# Set permissions
-USER root
-
 # Download Dependencies
-COPY build.gradle gradlew gradlew.bat $BUILD_DIR
-COPY gradle $BUILD_DIR/gradle
+COPY gradle build.gradle gradlew gradlew.bat $BUILD_DIR
 RUN ./gradlew build -x :bootRepackage -x test --continue
 
 # Copy Code Over and Build jar
