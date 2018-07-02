@@ -15,7 +15,11 @@ script:
   - curl -v http://elastic:changeme@127.0.0.1:9200
   - docker ps
   - docker logs catalog
+  - sleep 10
   - curl http://127.0.0.1:8081/micro/items
+
+after_script:
+  - docker images
 
 after_success:
   provider: script
@@ -33,6 +37,3 @@ after_success:
 #  on:
 #    tags: true
 #    all_branches: true
-
-after_script:
-  - docker images
