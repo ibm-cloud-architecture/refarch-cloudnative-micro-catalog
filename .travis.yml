@@ -67,7 +67,7 @@ jobs:
       - helm package chart/catalog
       # helm install
       - CHART_VERSION=$(cat chart/catalog/Chart.yaml | grep version | awk '{print $2}')
-      - helm install --name catalog --set service.type=NodePort catalog-${CHART_VERSION}.tgz
+      - helm upgrade --install --name catalog --set service.type=NodePort catalog-${CHART_VERSION}.tgz
       - sleep 15
       - NODE_PORT=$(kubectl get service bluecompute-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
       # Run api test
