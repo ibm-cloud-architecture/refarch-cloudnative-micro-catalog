@@ -1,0 +1,15 @@
+sudo: true
+dist: trusty
+
+jobs:
+  include:
+    - stage: build docker image
+      script:
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - docker build -t catalog-test .
+      - docker images
+      - docker tag catalog-test $DOCKER_USERNAME/catalog-test
+      - docker push $DOCKER_USERNAME/catalog-test
+    - stage: test
+      script: docker run --rm $DOCKER_USERNAME/catalog-test cat hello.txt
+    - script: docker run --rm $DOCKER_USERNAME/catalog-test cat hello.txt
