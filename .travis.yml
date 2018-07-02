@@ -5,27 +5,50 @@ services:
 env:
   global:
     - IMAGE_NAME=ibmcase/bluecompute-catalog-test
+stages:
+  - build
+  - deploy
+  - test
+jobs:
+  include:
+    - stage: build
+      before_script:
+      - docker pull "$IMAGE_NAME" || true
+      script: 
+      - docker build --pull --cache-from "$IMAGE_NAME" --tag "$IMAGE_NAME" .
+    - stage: deploy
+      script: 
+      - docker run --net=host --name=catalog -d -p 8081:8081 -e ELASTICSEARCH_URI="http://elastic:changeme@127.0.0.1:9200" "${IMAGE_NAME}"
+    - stage: test
+      script:
+      - curl -v http://elastic:changeme@127.0.0.1:9200
+      - sleep 15
+      - docker ps
+      - curl http://127.0.0.1:8081/micro/items
+      after_success:
+      - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+      - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:latest"
+      - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${TRAVIS_JOB_NUMBER}"
+      - docker push "${IMAGE_NAME}:latest" && docker push "${IMAGE_NAME}:${TRAVIS_JOB_NUMBER}"
+      after_script:
+      - docker images
 
-before_script:
-  - docker pull "$IMAGE_NAME" || true
+#script:
+#  - docker build --pull --cache-from "$IMAGE_NAME" --tag "$IMAGE_NAME" .
+#  - docker run --net=host --name=catalog -d -p 8081:8081 -e ELASTICSEARCH_URI="http://elastic:changeme@127.0.0.1:9200" "${IMAGE_NAME}"
+#  - curl -v http://elastic:changeme@127.0.0.1:9200
+#  - sleep 15
+#  - docker ps
+#  - curl http://127.0.0.1:8081/micro/items
 
-script:
-  - docker build --pull --cache-from "$IMAGE_NAME" --tag "$IMAGE_NAME" .
-  - docker run --net=host --name=catalog -d -p 8081:8081 -e ELASTICSEARCH_URI="http://elastic:changeme@127.0.0.1:9200" "${IMAGE_NAME}"
-  - curl -v http://elastic:changeme@127.0.0.1:9200
-  - sleep 15
-  - docker ps
-  #- docker logs catalog
-  - curl http://127.0.0.1:8081/micro/items
+#after_script:
+#  - docker images
 
-after_script:
-  - docker images
-
-after_success:
-  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-  - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:latest"
-  - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${TRAVIS_JOB_NUMBER}"
-  - docker push "${IMAGE_NAME}:latest" && docker push "${IMAGE_NAME}:${TRAVIS_JOB_NUMBER}"
+#after_success:
+#  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+#  - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:latest"
+#  - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${TRAVIS_JOB_NUMBER}"
+#  - docker push "${IMAGE_NAME}:latest" && docker push "${IMAGE_NAME}:${TRAVIS_JOB_NUMBER}"
 
 #deploy:
 #  provider: script
