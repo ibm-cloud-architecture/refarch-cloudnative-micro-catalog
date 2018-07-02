@@ -16,11 +16,18 @@ jobs:
       script: 
       - docker build --pull --cache-from "$IMAGE_NAME" --tag "$IMAGE_NAME" .
     - stage: test
-      script: 
+      before_script:
       - docker run --net=host --name=catalog -d -p 8081:8081 -e ELASTICSEARCH_URI="http://elastic:changeme@127.0.0.1:9200" "${IMAGE_NAME}"
+      script:
+      # Test Elasticsearch
       - curl -v http://elastic:changeme@127.0.0.1:9200
+      # TODO: Load Elasticsearch with data
+      # Wait for the app container to start
       - sleep 15
+      # Check that the app container is running
       - docker ps
+      # Test API
+      # TODO: Test more APIs, perhaps with a separate script
       - curl http://127.0.0.1:8081/micro/items
       after_success:
       - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
@@ -29,6 +36,43 @@ jobs:
       - docker push "${IMAGE_NAME}:latest" && docker push "${IMAGE_NAME}:${TRAVIS_JOB_NUMBER}"
       after_script:
       - docker images
+    - stage: deploy
+      env:
+      - CHANGE_MINIKUBE_NONE_USER=true
+      before_script:
+      # Download kubectl, which is a requirement for using minikube.
+      - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+      # Download minikube.
+      - curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.25.2/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
+      - sudo minikube start --vm-driver=none --kubernetes-version=v1.9.0
+      # Fix the kubectl context, as it's often stale.
+      - minikube update-context
+      # Wait for Kubernetes to be up and ready.
+      - JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 1; done
+      # Download Helm and install on minikube, then wait 10 seconds for it to be ready
+      # Probably add the service account permissions here as well
+      - curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > get_helm.sh && chmod 700 get_helm.sh && ./get_helm.sh && rm get_helm.sh
+      - kubectl -n kube-system create sa tiller && kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
+      - helm init --service-account tiller
+      - sleep 10
+      script:
+      # Get cluster info
+      - kubectl cluster-info
+      # Create elasticsearch secret for using Travis CI's elasticsearch service
+      - kubectl apply -f kubernetes/elasticsearch_secret.yml
+      - kubectl get secret binding-catalog-elasticsearch
+      # helm lint
+      - helm lint chart/catalog
+      # helm package
+      - helm package chart/catalog
+      # helm install
+      - CHART_VERSION=$(cat chart/catalog/Chart.yaml | grep version | awk '{print $2}')
+      - helm install --name catalog --set service.type=NodePort catalog-${CHART_VERSION}.tgz
+      - sleep 15
+      - NODE_PORT=$(kubectl get service bluecompute-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
+      # Run api test
+      - curl http://$(minikube ip):${NODE_PORT}/micro/items
+
 
 #script:
 #  - docker build --pull --cache-from "$IMAGE_NAME" --tag "$IMAGE_NAME" .
