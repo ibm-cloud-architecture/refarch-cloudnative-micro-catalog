@@ -15,7 +15,7 @@ after_script:
   - docker images
 
 before_deploy:
-  - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS"
+  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
   - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:latest"
   - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${version}"
 deploy:
