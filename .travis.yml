@@ -13,7 +13,7 @@ script:
   - docker build --pull --cache-from "$IMAGE_NAME" --tag "$IMAGE_NAME" .
   - docker run --net=host --name=catalog -d -p 8081:8081 -e ELASTICSEARCH_URI="http://elastic:changeme@127.0.0.1:9200" "${IMAGE_NAME}"
   - curl -v http://elastic:changeme@127.0.0.1:9200
-  - sleep 10
+  - sleep 15
   - docker ps
   #- docker logs catalog
   - curl http://127.0.0.1:8081/micro/items
