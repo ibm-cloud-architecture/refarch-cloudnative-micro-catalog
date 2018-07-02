@@ -11,7 +11,7 @@ COPY build.gradle $BUILD_DIR
 RUN gradle build -x :bootRepackage -x test --continue
 
 # Copy Code Over and Build jar
-COPY src .
+COPY src src
 RUN gradle build -x test
 
 # STAGE: Deploy
