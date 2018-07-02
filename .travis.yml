@@ -1,15 +1,25 @@
-sudo: true
-dist: trusty
+sudo: required
+services:
+  - docker
+env:
+  global:
+    - IMAGE_NAME=ibmcase/bluecompute-catalog-test
 
-jobs:
-  include:
-    - stage: build docker image
-      script:
-      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-      - docker build -t catalog-test .
-      - docker images
-      - docker tag catalog-test $DOCKER_USERNAME/catalog-test
-      - docker push $DOCKER_USERNAME/catalog-test
-    - stage: test
-      script: docker run --rm $DOCKER_USERNAME/catalog-test cat hello.txt
-    - script: docker run --rm $DOCKER_USERNAME/catalog-test cat hello.txt
+before_script:
+  - version="$(awk '$2 == "CAKE_SERVICE_VERSION" { print $3; exit }' Dockerfile)"
+  - docker pull "$IMAGE_NAME" || true
+script:
+  - docker build --pull --cache-from "$IMAGE_NAME" --tag "$IMAGE_NAME" .
+
+after_script:
+  - docker images
+
+before_deploy:
+  - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS"
+  - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:latest"
+  - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${version}"
+deploy:
+  provider: script
+  script: docker push "${IMAGE_NAME}:latest" && docker push "${IMAGE_NAME}:${version}"
+  on:
+    branch: master
