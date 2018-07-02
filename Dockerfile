@@ -7,11 +7,13 @@ RUN mkdir $BUILD_DIR
 WORKDIR $BUILD_DIR
 
 # Download Dependencies
-COPY gradle build.gradle gradlew gradlew.bat $BUILD_DIR
+COPY build.gradle gradlew gradlew.bat $BUILD_DIR
+COPY gradle $BUILD_DIR/gradle
+RUN ls -la
 RUN ./gradlew build -x :bootRepackage -x test --continue
 
 # Copy Code Over and Build jar
-COPY . .
+COPY src .
 RUN ./gradlew build -x test
 
 # STAGE: Deploy
