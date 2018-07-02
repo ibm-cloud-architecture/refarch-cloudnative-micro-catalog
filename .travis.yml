@@ -7,7 +7,6 @@ env:
     - IMAGE_NAME=ibmcase/bluecompute-catalog-test
 stages:
   - build
-  - deploy
   - test
 jobs:
   include:
@@ -16,11 +15,9 @@ jobs:
       - docker pull "$IMAGE_NAME" || true
       script: 
       - docker build --pull --cache-from "$IMAGE_NAME" --tag "$IMAGE_NAME" .
-    - stage: deploy
+    - stage: test
       script: 
       - docker run --net=host --name=catalog -d -p 8081:8081 -e ELASTICSEARCH_URI="http://elastic:changeme@127.0.0.1:9200" "${IMAGE_NAME}"
-    - stage: test
-      script:
       - curl -v http://elastic:changeme@127.0.0.1:9200
       - sleep 15
       - docker ps
