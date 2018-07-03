@@ -16,8 +16,8 @@ jobs:
       script: 
       - docker build --pull --cache-from "$IMAGE_NAME" --tag "$IMAGE_NAME" .
     - stage: test
-      #services:
-      #- elasticsearch
+      services:
+      - elasticsearch
       before_script:
       - docker run --net=host --name=catalog -d -p 8081:8081 -e ELASTICSEARCH_URI="http://elastic:changeme@127.0.0.1:9200" "${IMAGE_NAME}"
       script:
@@ -41,8 +41,8 @@ jobs:
     - stage: deploy
       env:
       - CHANGE_MINIKUBE_NONE_USER=true
-      services:
-      - elasticsearch
+      #services:
+      #- elasticsearch
       before_script:
       # Install nsenter
       - bash scripts/install_nsenter.sh 
