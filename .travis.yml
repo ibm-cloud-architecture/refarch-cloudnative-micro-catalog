@@ -75,7 +75,9 @@ jobs:
       - CHART_VERSION=$(cat chart/catalog/Chart.yaml | grep version | awk '{print $2}')
       - helm upgrade --install ${RELEASE_NAME} --set service.type=NodePort --set image.repository="${IMAGE_NAME}" --set image.tag="${TRAVIS_JOB_NUMBER}" catalog-${CHART_VERSION}.tgz
       # Wait for catalog to be ready
-      - READY=$(kubectl get deployments "${RELEASE_NAME}-catalog" -o=jsonpath='{.status.readyReplicas}'); until [ "${READY}" -ge "1" ]; do READY=$(kubectl get deployments "${RELEASE_NAME}-catalog" -o=jsonpath='{.status.readyReplicas}'); echo "Waiting for catalog to be ready"; sleep 1; done
+      - READY=$(kubectl get deployments "${RELEASE_NAME}-catalog" -o=jsonpath='{.status.readyReplicas}')
+      - echo $READY
+      - until [ "${READY}" -ge "1" ]; do READY=$(kubectl get deployments "${RELEASE_NAME}-catalog" -o=jsonpath='{.status.readyReplicas}'); echo "Waiting for catalog to be ready"; sleep 1; done
       - sleep 5
       # Run api test
       - NODE_PORT=$(kubectl get service "${RELEASE_NAME}-catalog" -o=jsonpath='{.spec.ports[0].nodePort}')
