@@ -57,8 +57,7 @@ jobs:
       - curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > get_helm.sh && chmod 700 get_helm.sh && ./get_helm.sh && rm get_helm.sh
       - kubectl -n kube-system create sa tiller && kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
       - helm init --service-account tiller
-      - sleep 20
-      - helm list
+      - until helm list; echo "waiting for helm to be ready"; sleep 1; done
       script:
       # Get cluster info
       - kubectl cluster-info
@@ -72,9 +71,10 @@ jobs:
       # helm install
       - CHART_VERSION=$(cat chart/catalog/Chart.yaml | grep version | awk '{print $2}')
       - helm upgrade --install catalog --set service.type=NodePort --set image.repository="${IMAGE_NAME}" --set image.tag="${TRAVIS_JOB_NUMBER}" catalog-${CHART_VERSION}.tgz
-      - sleep 15
-      - NODE_PORT=$(kubectl get service bluecompute-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
+      # Wait for catalog to be ready
+      - READY=$(kubectl get deployments bluecompute-catalog -o=jsonpath='{.status.readyReplicas}'); until [ "${READY}" -ge "1" ]; do READY=$(kubectl get deployments bluecompute-catalog -o=jsonpath='{.status.readyReplicas}'); echo "Waiting for catalog to be ready"; done
       # Run api test
+      - NODE_PORT=$(kubectl get service bluecompute-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
       - curl http://$(minikube ip):${NODE_PORT}/micro/items
 
 
