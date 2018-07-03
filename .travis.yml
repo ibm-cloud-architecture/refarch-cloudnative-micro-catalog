@@ -73,6 +73,7 @@ jobs:
       - helm upgrade --install catalog --set service.type=NodePort --set image.repository="${IMAGE_NAME}" --set image.tag="${TRAVIS_JOB_NUMBER}" catalog-${CHART_VERSION}.tgz
       # Wait for catalog to be ready
       - READY=$(kubectl get deployments bluecompute-catalog -o=jsonpath='{.status.readyReplicas}'); until [ "${READY}" -ge "1" ]; do READY=$(kubectl get deployments bluecompute-catalog -o=jsonpath='{.status.readyReplicas}'); echo "Waiting for catalog to be ready"; done
+      - sleep 5
       # Run api test
       - NODE_PORT=$(kubectl get service bluecompute-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
       - curl http://$(minikube ip):${NODE_PORT}/micro/items
