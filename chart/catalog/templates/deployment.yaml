@@ -34,6 +34,7 @@ spec:
               }
             }]
           },
+          {{- if .Values.inventory.service.url -}}
           {
             "name": "test-inventory-service",
             "image": "{{ .Values.dataloader.image.repository }}:{{ .Values.dataloader.image.tag }}",
@@ -41,6 +42,7 @@ spec:
             "command": ["/bin/bash", "-c"],
             "args": ["until curl {{ template "inventoryServiceUrl" . }}; do echo waiting for inventory-service at {{ template "inventoryServiceUrl" . }}; sleep 1; done"]
           }
+          {{- end -}}
         ]'
     spec:
       containers:
