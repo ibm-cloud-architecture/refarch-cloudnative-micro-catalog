@@ -77,14 +77,14 @@ jobs:
       # Wait for catalog to be ready
       - echo "catalog"
       - kubectl get deployments
-      - kubectl get deployments catalog-catalog -o yaml
-      - kubectl get deployments catalog-catalog -o yaml | grep "readyReplicas" | awk '{print $2}'
-      - READY=$(kubectl get deployments catalog-catalog -o yaml | grep "readyReplicas" | awk '{print $2}')
+      - kubectl get deployments ${RELEASE_NAME}-catalog -o yaml
+      - kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}'
+      - READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}')
       - echo $READY
-      - until [ ${READY} -ge 1 ]; do READY=$(kubectl get deployments catalog-catalog -o yaml | grep "readyReplicas" | awk '{print $2}'); echo "Waiting for catalog to be ready"; sleep 1; done
+      - until [ -n "$READY" ] && [ ${READY} -ge 1 ]; do READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}'); echo "Waiting for catalog to be ready"; sleep 1; done
       - sleep 5
       # Run api test
-      - NODE_PORT=$(kubectl get service catalog-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
+      - NODE_PORT=$(kubectl get service ${RELEASE_NAME}-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
       - curl http://$(minikube ip):${NODE_PORT}/micro/items
 
 
