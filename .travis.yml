@@ -20,7 +20,6 @@ jobs:
       before_script:
       - docker run --net=host --name=catalog -d -p 8081:8081 -e ELASTICSEARCH_URI="http://elastic:changeme@127.0.0.1:9200" "${IMAGE_NAME}"
       script:
-      - ls -la
       # Test Elasticsearch
       - curl -v http://elastic:changeme@127.0.0.1:9200
       # TODO: Load Elasticsearch with data
@@ -41,6 +40,7 @@ jobs:
     - stage: deploy
       env:
       - CHANGE_MINIKUBE_NONE_USER=true
+      - RELEASE_NAME=catalog
       before_script:
       # Install nsenter
       - bash scripts/install_nsenter.sh 
@@ -62,7 +62,6 @@ jobs:
       - helm init --service-account tiller
       - until helm list; do echo "waiting for helm to be ready"; sleep 1; done
       script:
-      # cd /home/travis/
       # Get cluster info
       - kubectl cluster-info
       # Create elasticsearch secret for using Travis CI's elasticsearch service
@@ -74,12 +73,12 @@ jobs:
       - helm package chart/catalog
       # helm install
       - CHART_VERSION=$(cat chart/catalog/Chart.yaml | grep version | awk '{print $2}')
-      - helm upgrade --install catalog --set service.type=NodePort --set image.repository="${IMAGE_NAME}" --set image.tag="${TRAVIS_JOB_NUMBER}" catalog-${CHART_VERSION}.tgz
+      - helm upgrade --install "${RELEASE_NAME}" --set service.type=NodePort --set image.repository="${IMAGE_NAME}" --set image.tag="${TRAVIS_JOB_NUMBER}" catalog-${CHART_VERSION}.tgz
       # Wait for catalog to be ready
-      - READY=$(kubectl get deployments bluecompute-catalog -o=jsonpath='{.status.readyReplicas}'); until [ "${READY}" -ge "1" ]; do READY=$(kubectl get deployments bluecompute-catalog -o=jsonpath='{.status.readyReplicas}'); echo "Waiting for catalog to be ready"; done
+      - READY=$(kubectl get deployments "${RELEASE_NAME}"-catalog -o=jsonpath='{.status.readyReplicas}'); until [ "${READY}" -ge "1" ]; do READY=$(kubectl get deployments "${RELEASE_NAME}"-catalog -o=jsonpath='{.status.readyReplicas}'); echo "Waiting for catalog to be ready"; sleep 1; done
       - sleep 5
       # Run api test
-      - NODE_PORT=$(kubectl get service bluecompute-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
+      - NODE_PORT=$(kubectl get service "${RELEASE_NAME}"-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
       - curl http://$(minikube ip):${NODE_PORT}/micro/items
 
 
