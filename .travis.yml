@@ -71,9 +71,9 @@ jobs:
       #- helm install --name elasticsearch ibmcase/catalogelasticsearch
       - wget https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/raw/master/docs/charts/catalogelasticsearch-0.3.0.tgz
       - helm install --name elasticsearch catalogelasticsearch-0.3.0.tgz
-      - ES_READY=$(kubectl get deployments elasticsearch-catalogdb-elasticsearch -o yaml | grep "readyReplicas" | awk '{print $2}')
+      - ES_READY=$(kubectl get deployments lasticsearch-default-cluster-elasticsearch -o yaml | grep "readyReplicas" | awk '{print $2}')
       - echo $ES_READY
-      - until [ -n "$ES_READY" ] && [ ${ES_READY} -ge 1 ]; do ES_READY=$(kubectl get deployments elasticsearch-catalogdb-elasticsearch -o yaml | grep "readyReplicas" | awk '{print $2}'); echo "Waiting for elasticsearch to be ready"; sleep 1; done
+      - until [ -n "$ES_READY" ] && [ ${ES_READY} -ge 1 ]; do ES_READY=$(kubectl get deployments lasticsearch-default-cluster-elasticsearch -o yaml | grep "readyReplicas" | awk '{print $2}'); echo "Waiting for elasticsearch to be ready"; sleep 1; done
       script:
       # Get cluster info
       - kubectl cluster-info
