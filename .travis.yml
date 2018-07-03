@@ -41,6 +41,8 @@ jobs:
     - stage: deploy
       env:
       - CHANGE_MINIKUBE_NONE_USER=true
+      services:
+      - elasticsearch
       before_script:
       # Install nsenter
       - bash scripts/install_nsenter.sh 
@@ -64,16 +66,16 @@ jobs:
       # Add ibmcase repo
       - helm repo add ibmcase https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/master/docs/charts
       # Install elasticsearch
-      - helm install --name elasticsearch ibmcase/catalogelasticsearch
-      - ES_READY=$(kubectl get deployments elasticsearch-catalogdb-elasticsearch -o yaml | grep "readyReplicas" | awk '{print $2}')
-      - echo $ES_READY
-      - until [ -n "$ES_READY" ] && [ ${ES_READY} -ge 1 ]; do ES_READY=$(kubectl get deployments elasticsearch-catalogdb-elasticsearch -o yaml | grep "readyReplicas" | awk '{print $2}'); echo "Waiting for elasticsearch to be ready"; sleep 1; done
+      #- helm install --name elasticsearch ibmcase/catalogelasticsearch
+      #- ES_READY=$(kubectl get deployments elasticsearch-catalogdb-elasticsearch -o yaml | grep "readyReplicas" | awk '{print $2}')
+      #- echo $ES_READY
+      #- until [ -n "$ES_READY" ] && [ ${ES_READY} -ge 1 ]; do ES_READY=$(kubectl get deployments elasticsearch-catalogdb-elasticsearch -o yaml | grep "readyReplicas" | awk '{print $2}'); echo "Waiting for elasticsearch to be ready"; sleep 1; done
       script:
       # Get cluster info
       - kubectl cluster-info
       # Create elasticsearch secret for using Travis CI's elasticsearch service
-      #- kubectl apply -f kubernetes/elasticsearch_secret.yml
-      #- kubectl get secret binding-catalog-elasticsearch
+      - kubectl apply -f kubernetes/elasticsearch_secret.yml
+      - kubectl get secret binding-catalog-elasticsearch
       # helm lint
       - helm lint chart/catalog
       # helm package
