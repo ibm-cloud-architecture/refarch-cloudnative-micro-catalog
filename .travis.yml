@@ -61,12 +61,19 @@ jobs:
       - kubectl -n kube-system create sa tiller && kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
       - helm init --service-account tiller
       - until helm list; do echo "waiting for helm to be ready"; sleep 1; done
+      # Add ibmcase repo
+      - helm repo add ibmcase https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/master/docs/charts
+      # Install elasticsearch
+      - helm install --name elasticsearch ibmcase/catalogelasticsearch
+      - ES_READY=$(kubectl get deployments elasticsearch-catalogdb-elasticsearch -o yaml | grep "readyReplicas" | awk '{print $2}')
+      - echo $ES_READY
+      - until [ -n "$ES_READY" ] && [ ${ES_READY} -ge 1 ]; do ES_READY=$(kubectl get deployments elasticsearch-catalogdb-elasticsearch -o yaml | grep "readyReplicas" | awk '{print $2}'); echo "Waiting for elasticsearch to be ready"; sleep 1; done
       script:
       # Get cluster info
       - kubectl cluster-info
       # Create elasticsearch secret for using Travis CI's elasticsearch service
-      - kubectl apply -f kubernetes/elasticsearch_secret.yml
-      - kubectl get secret binding-catalog-elasticsearch
+      #- kubectl apply -f kubernetes/elasticsearch_secret.yml
+      #- kubectl get secret binding-catalog-elasticsearch
       # helm lint
       - helm lint chart/catalog
       # helm package
@@ -75,13 +82,10 @@ jobs:
       - CHART_VERSION=$(cat chart/catalog/Chart.yaml | grep version | awk '{print $2}')
       - helm upgrade --install catalog --set service.type=NodePort --set image.repository="${IMAGE_NAME}" --set image.tag="${TRAVIS_JOB_NUMBER}" catalog-${CHART_VERSION}.tgz
       # Wait for catalog to be ready
-      - echo "catalog"
-      - kubectl get deployments
       - kubectl get deployments ${RELEASE_NAME}-catalog -o yaml
-      - kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}'
       - READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}')
       - echo $READY
-      - until [ -n "$READY" ] && [ ${READY} -ge 1 ]; do READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}'); echo "Waiting for catalog to be ready"; sleep 1; kubectl get deployments ${RELEASE_NAME}-catalog -o yaml; done
+      - until [ -n "$READY" ] && [ ${READY} -ge 1 ]; do READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}'); echo "Waiting for catalog to be ready"; sleep 1; done
       - sleep 5
       # Run api test
       - NODE_PORT=$(kubectl get service ${RELEASE_NAME}-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
