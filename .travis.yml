@@ -79,7 +79,7 @@ jobs:
       - kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}'
       - READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}')
       - echo $READY
-      - until [ "${READY}" -ge 1 ]; do READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}'); echo "Waiting for catalog to be ready"; sleep 1; done
+      - until [ ${READY} -ge 1 ]; do READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}'); echo "Waiting for catalog to be ready"; sleep 1; done
       - sleep 5
       # Run api test
       - NODE_PORT=$(kubectl get service ${RELEASE_NAME}-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
