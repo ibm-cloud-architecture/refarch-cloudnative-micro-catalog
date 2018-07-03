@@ -48,6 +48,8 @@ jobs:
       - sudo minikube start --vm-driver=none --kubernetes-version=v1.9.0
       # Fix the kubectl context, as it's often stale.
       - minikube update-context
+      # Getting ip for testing
+      - minikube ip
       # Wait for Kubernetes to be up and ready.
       - JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 1; done
       # Download Helm and install on minikube, then wait 10 seconds for it to be ready
@@ -56,6 +58,7 @@ jobs:
       - kubectl -n kube-system create sa tiller && kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
       - helm init --service-account tiller
       - sleep 10
+      - helm list
       script:
       # Get cluster info
       - kubectl cluster-info
@@ -68,7 +71,7 @@ jobs:
       - helm package chart/catalog
       # helm install
       - CHART_VERSION=$(cat chart/catalog/Chart.yaml | grep version | awk '{print $2}')
-      - helm upgrade --install catalog --set service.type=NodePort catalog-${CHART_VERSION}.tgz
+      - helm upgrade --install catalog --set service.type=NodePort --set image.repository="${IMAGE_NAME}" --set image.tag="${TRAVIS_JOB_NUMBER}" catalog-${CHART_VERSION}.tgz
       - sleep 15
       - NODE_PORT=$(kubectl get service bluecompute-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
       # Run api test
