@@ -17,5 +17,5 @@ elasticsearch:
   doc_type: items
 
 inventoryService:
-  url: http://inventory-service:8080
+  url: http://localhost:8080
  

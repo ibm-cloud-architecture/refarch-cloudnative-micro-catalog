@@ -44,10 +44,11 @@ public class ItemService {
     // Get all rows from database
     public List<Item> findAll() {
         List<Item> list;
-        final String req_url = url + "/" + index + "/" + doc_type + "/_search?size=1000&pretty=1";
+        final String req_url = url + "/" + index + "/" + doc_type + "/_search";
         final Response response = perform_request(req_url);
 
         try {
+            logger.info(String.format("Got response:%s", response.toString()));
             list = getItemsFromResponse(response);
 
         } catch (IOException e) {

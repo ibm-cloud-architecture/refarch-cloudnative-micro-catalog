@@ -18,14 +18,14 @@ function add_certificate_to_keystore() {
 function add_elasticsearch_certificate() {
 	CERT_PATH="/etc/ssl/certs/bluecompute-ca-certificate.crt"
 
-	if [ -n "$ELASTICSEARCH_CA_CERTIFICATE" ]; then
-		echo "Getting certificate from ELASTICSEARCH_CA_CERTIFICATE"
-        echo $ELASTICSEARCH_CA_CERTIFICATE >> ${CERT_PATH}
+	if [ -n "$ES_CA_CERTIFICATE" ]; then
+		echo "Getting certificate from ES_CA_CERTIFICATE"
+        echo $ES_CA_CERTIFICATE >> ${CERT_PATH}
         add_certificate_to_keystore
 
-	elif [ -n "$ELASTICSEARCH_CA_CERTIFICATE_BASE64" ]; then
-		echo "Getting certificate from ELASTICSEARCH_CA_CERTIFICATE_BASE64"
-        echo $ELASTICSEARCH_CA_CERTIFICATE_BASE64 | base64 -d >> ${CERT_PATH}
+	elif [ -n "$ES_CA_CERTIFICATE_BASE64" ]; then
+		echo "Getting certificate from ES_CA_CERTIFICATE_BASE64"
+        echo $ES_CA_CERTIFICATE_BASE64 | base64 -d >> ${CERT_PATH}
         add_certificate_to_keystore
 
 	elif [ -n "$elastic" ]; then

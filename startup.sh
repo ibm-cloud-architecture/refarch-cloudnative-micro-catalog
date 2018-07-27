@@ -15,10 +15,14 @@ parse_elasticsearch
 # Parse Elasticsearch certificate and add to Java keystore
 add_elasticsearch_certificate
 
+# Parse Inventory URL
+JAVA_OPTS="${JAVA_OPTS} -DinventoryService.url=${INVENTORY_URL}"
+
 # disable eureka
 JAVA_OPTS="${JAVA_OPTS} -Deureka.client.enabled=false -Deureka.client.registerWithEureka=false -Deureka.fetchRegistry=false"
 
 echo "Starting Java application"
+echo $JAVA_OPTS
 
 # Start the application
 exec java ${JAVA_OPTS} -jar /app.jar
