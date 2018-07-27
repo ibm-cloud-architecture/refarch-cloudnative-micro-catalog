@@ -1,50 +1,19 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-{{ .Chart.Name }}
+  name: {{ template "catalog.fullname" . }}
   labels:
-    app: bluecompute
-    micro: catalog
-    tier: backend
-    release: {{.Release.Name | quote }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    {{- include "catalog.labels" . | indent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
-        app: bluecompute
-        micro: catalog
-        tier: backend
-      annotations:
-        pod.beta.kubernetes.io/init-containers: '[
-          {
-            "name": "test-elasticsearch",
-            "image": "{{ .Values.dataloader.image.repository }}:{{ .Values.dataloader.image.tag }}",
-            "imagePullPolicy": "IfNotPresent",
-            "command": ["/bin/bash", "-c"],
-            "args": ["cert=$(echo $elastic | jq .ca_certificate_base64 -r); if [[ ! -z \"${cert// }\" && \"$cert\" != \"null\" ]]; then echo \"Updating ca-certificates.crt\"; echo $elastic | jq .ca_certificate_base64 -r | base64 -d >> /etc/ssl/certs/ca-certificates.crt; else echo \"No certificate to update\"; fi; elastic_uri=`echo $elastic | jq .uri -r`; until curl -s ${elastic_uri}_cluster/health | jq .status | egrep \"yellow|green\"; do echo waiting for elasticsearch; sleep 1; done"],
-            "env": [{
-              "name": "elastic",
-              "valueFrom": {
-                "secretKeyRef": {
-                  "name": "{{ template "catalogElasticSearchBindingName" . }}",
-                  "key": "binding"
-                }
-              }
-            }]
-          },
-          {{- if .Values.inventory.service.url -}}
-          {
-            "name": "test-inventory-service",
-            "image": "{{ .Values.dataloader.image.repository }}:{{ .Values.dataloader.image.tag }}",
-            "imagePullPolicy": "IfNotPresent",
-            "command": ["/bin/bash", "-c"],
-            "args": ["until curl {{ template "inventoryServiceUrl" . }}; do echo waiting for inventory-service at {{ template "inventoryServiceUrl" . }}; sleep 1; done"]
-          }
-          {{- end -}}
-        ]'
+        {{- include "catalog.labels" . | indent 8 }}
     spec:
+      initContainers:
+      {{- include "catalog.elasticsearch.initcontainer" . | indent 6 }}
+      {{- include "catalog.inventory.initcontainer" . | indent 6 }}
       containers:
       - name: catalog
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -52,13 +21,9 @@ spec:
         ports:
         - containerPort: {{ .Values.service.internalPort }}
           protocol: TCP
-        resources:
-{{ toYaml .Values.resources | indent 12 }}
         env:
-        - name: elastic
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "catalogElasticSearchBindingName" . }}
-              key: binding
-        - name: INVENTORYSERVICE_URL
-          value: {{ template "inventoryServiceUrl" . }}
+        {{- include "catalog.elasticsearch.environmentvariables" . | indent 8 }}
+        - name: INVENTORY_URL
+          value: {{ template "catalog.inventory" . }}
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
