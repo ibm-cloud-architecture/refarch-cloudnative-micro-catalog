@@ -15,8 +15,8 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{/* Catalog Elasticsearch Init Container Template */}}
 {{- define "catalog.elasticsearch.initcontainer" }}
 - name: test-elasticsearch
-  image: {{ .Values.busybox.image }}:{{ .Values.busybox.imageTag }}
-  imagePullPolicy: {{ .Values.busybox.imagePullPolicy }}
+  image: {{ .Values.curl.image }}:{{ .Values.curl.imageTag }}
+  imagePullPolicy: {{ .Values.curl.imagePullPolicy }}
   command:
   - "/bin/sh"
   - "-c"
@@ -74,8 +74,8 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{/* Inventory Init Container Template */}}
 {{- define "catalog.inventory.initcontainer" }}
 - name: test-inventory
-  image: {{ .Values.busybox.image }}:{{ .Values.busybox.imageTag }}
-  imagePullPolicy: {{ .Values.busybox.imagePullPolicy }}
+  image: {{ .Values.curl.image }}:{{ .Values.curl.imageTag }}
+  imagePullPolicy: {{ .Values.curl.imagePullPolicy }}
   command:
   - "/bin/sh"
   - "-c"

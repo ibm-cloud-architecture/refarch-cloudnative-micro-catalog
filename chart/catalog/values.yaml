@@ -22,8 +22,8 @@ tls:
   crt: ENTER_BASE64_ENCODED_CERTIFICATE
   key: ENTER_BASE64_ENCODED_KEY
 
-# Busybox with cURL
-busybox:
+# Alpine with cURL
+curl:
   image: alexeiled/curl
   imageTag: latest
   imagePullPolicy: IfNotPresent
