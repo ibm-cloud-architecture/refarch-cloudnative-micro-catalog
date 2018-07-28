@@ -35,7 +35,7 @@ jobs:
       # Wait for elasticsearch and inventory to start
       - sleep 25
       # Test Inventory
-      - echo 127.0.0.1:8080/micro/inventory
+      - curl http://127.0.0.1:8080/micro/inventory
       script:
       # Gradle Build
       - ./gradlew build -x test
@@ -63,12 +63,12 @@ jobs:
       # Wait for elasticsearch and inventory to start
       - sleep 25
       # Test Inventory
-      - echo 127.0.0.1:8080/micro/inventory
+      - curl http://127.0.0.1:8080/micro/inventory
       script:
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
       # Start Catalog Container and Connect to local MySQL Service
-      - docker run --net=host --name catalog -e ELASTICSEARCH_URI="http://127.0.0.1:9200" -e INVENTORY_URL="http://127.0.0.1:8080" -p 8081:8081 -d catalog
+      - docker run --net=host --name catalog -e ELASTICSEARCH_URI="http://127.0.0.1:9200" -e INVENTORY_URL="http://127.0.0.1:8080" -p 8081:8081 -d "${IMAGE_NAME}:${TAG}"
       # Wait for the Catalog container to start accepting connections
       - sleep 25
       # Check that the Catalog container is running
