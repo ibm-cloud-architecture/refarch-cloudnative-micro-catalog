@@ -33,7 +33,7 @@ Here is an overview of the project's features:
 - Uses [`Elasticsearch`](https://www.elastic.co/products/elasticsearch) to persist Catalog data to Elasticsearch database.
 - Uses [`MySQL`](https://www.mysql.com/) as the Inventory database.
 - Uses [`Docker`](https://docs.docker.com/) to package application binary and its dependencies.
-- Uses [`Helm`](https://helm.sh/) to package application and MySQL deployment configuration and deploy to a [`Kubernetes`](https://kubernetes.io/) cluster. 
+- Uses [`Helm`](https://helm.sh/) to package application along with dependencies (Elasticsearch, Inventory, and MySQL) and deploy to a [`Kubernetes`](https://kubernetes.io/) cluster.
 
 ### APIs
 * Get all items in catalog:
@@ -59,10 +59,12 @@ In this section, we are going to deploy the Catalog Application, along with a My
 # Go to Chart Directory
 $ cd chart/catalog
 
-# Download MySQL Dependency Chart
+# Download Elasticsearch, Inventory, and MySQL Dependency charts
+$ helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
+$ helm repo add ibmcase-charts https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/master/docs/charts
 $ helm dependency update
 
-# Deploy Catalog and MySQL to Kubernetes cluster
+# Deploy Catalog and Elasticsearch to Kubernetes cluster
 $ helm upgrade --install catalog --set service.type=NodePort .
 ```
 
