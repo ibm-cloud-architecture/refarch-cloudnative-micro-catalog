@@ -1,4 +1,4 @@
-# refarch-cloudnative-micro-catalog: Spring Boot Microservice with MySQL Database
+# refarch-cloudnative-micro-catalog: Spring Boot Microservice with Elasticsearch Database
 [![Build Status](https://travis-ci.org/ibm-cloud-architecture/refarch-cloudnative-micro-catalog.svg?branch=master)](https://travis-ci.org/ibm-cloud-architecture/refarch-cloudnative-micro-catalog)
 
 *This project is part of the 'IBM Cloud Native Reference Architecture' suite, available at
