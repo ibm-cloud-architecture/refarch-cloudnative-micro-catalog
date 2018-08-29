@@ -39,7 +39,7 @@ Lastly, the source for the `alexeiled/curl` Docker Image can be found at:
 To deploy the Catalog Chart and its Elasticsearch dependency Chart to a Kubernetes cluster using Helm CLI, follow the instructions below:
 ```bash
 # Clone catalog repository:
-$ git clone http://github.com/refarch-cloudnative-micro-catalog.git
+$ git clone -b spring --single-branch https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-catalog.git
 
 # Go to Chart Directory
 $ cd refarch-cloudnative-micro-catalog/chart/catalog
