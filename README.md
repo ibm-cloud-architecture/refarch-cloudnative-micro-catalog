@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/ibm-cloud-architecture/refarch-cloudnative-micro-catalog.svg?branch=master)](https://travis-ci.org/ibm-cloud-architecture/refarch-cloudnative-micro-catalog)
 
 *This project is part of the 'IBM Cloud Native Reference Architecture' suite, available at
-https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes*
+https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/tree/spring*
 
 ## Table of Contents
 * [Introduction](#introduction)
@@ -49,7 +49,7 @@ Here is an overview of the project's features:
     + [`helm`](https://docs.helm.sh/using_helm/#installing-helm)
 * Clone catalog repository:
 ```bash
-$ git clone http://github.com/refarch-cloudnative-micro-catalog.git
+$ git clone -b spring --single-branch https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-catalog.git
 $ cd refarch-cloudnative-micro-catalog
 ```
 
