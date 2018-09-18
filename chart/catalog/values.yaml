@@ -64,7 +64,6 @@ elasticsearch:
 
 # Inventory Microservice URL, which is needed to pull data into Elasticsearch
 inventory:
-  enabled: true
   url: http://bluecompute-inventory:8080
 
 resources:

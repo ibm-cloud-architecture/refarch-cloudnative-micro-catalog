@@ -44,11 +44,16 @@ $ git clone -b spring --single-branch https://github.com/ibm-cloud-architecture/
 # Go to Chart Directory
 $ cd refarch-cloudnative-micro-catalog/chart/catalog
 
-# Download Elasticsearch, Inventory, and MySQL Dependency Charts
-$ helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
+# Add helm repos for Inventory Chart
 $ helm repo add ibmcase-charts https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/spring/docs/charts
+
+# Install Inventory Chart
+$ helm upgrade --install inventory ibmcase-charts/inventory
+
+# Download Elasticsearch Dependency Chart
+$ helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
 $ helm dependency update
 
 # Deploy Catalog and Elasticsearch to Kubernetes cluster
-$ helm upgrade --install catalog --set service.type=NodePort .
+$ helm upgrade --install catalog --set service.type=NodePort,inventory.url=http://inventory-inventory:8080 .
 ```
