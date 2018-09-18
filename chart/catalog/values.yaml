@@ -35,7 +35,7 @@ curl:
 #   for external MySQL deployments.
 # - Also, the MySQL docker image is used in load_data.yaml to load
 #   MySQL deployment (internal or not) with some static inventory data
-catalogelasticsearch:
+elasticsearch:
   enabled: true
   # If chart is not enabled, this field can be used as external elasticsearch host
   fullnameOverride: bluecompute-catalog-elasticsearch
