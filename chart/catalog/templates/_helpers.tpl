@@ -20,9 +20,9 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
   command:
   - "/bin/sh"
   - "-c"
-  {{- if and .Values.catalogelasticsearch.username .Values.catalogelasticsearch.password }}
+  {{- if and .Values.elasticsearch.username .Values.elasticsearch.password }}
   - "set -x; until curl -k ${ES_PROTOCOL}://${ES_USER}:${ES_PASSWORD}@${ES_HOST}:${ES_PORT}/${ES_HEALTH} | {{ template "catalog.elasticsearch.test" . }}"
-  {{- else if and .Values.catalogelasticsearch.username }}
+  {{- else if and .Values.elasticsearch.username }}
   - "set -x; until curl -k ${ES_PROTOCOL}://${ES_USER}@${ES_HOST}:${ES_PORT}/${ES_HEALTH} | {{ template "catalog.elasticsearch.test" . }}"
   {{- else }}
   - "set -x; until curl -k ${ES_PROTOCOL}://${ES_HOST}:${ES_PORT}/${ES_HEALTH} | {{ template "catalog.elasticsearch.test" . }}"
@@ -33,35 +33,35 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 
 {{/* Catalog Elasticsearch Environment Variables */}}
 {{- define "catalog.elasticsearch.environmentvariables" }}
-{{- if .Values.catalogelasticsearch.enabled }}
+{{- if .Values.elasticsearch.enabled }}
 - name: ES_HOST
-  value: "{{ .Values.catalogelasticsearch.fullnameOverride }}-client"
+  value: "{{ .Values.elasticsearch.fullnameOverride }}-client"
 {{- else }}
 - name: ES_HOST
-  value: {{ .Values.catalogelasticsearch.fullnameOverride | quote }}
+  value: {{ .Values.elasticsearch.fullnameOverride | quote }}
 {{- end }}
 - name: ES_PROTOCOL
-  value: {{ .Values.catalogelasticsearch.protocol | quote }}
+  value: {{ .Values.elasticsearch.protocol | quote }}
 - name: ES_PORT
-  value: {{ .Values.catalogelasticsearch.port | quote }}
+  value: {{ .Values.elasticsearch.port | quote }}
 - name: ES_HEALTH
-  value: {{ .Values.catalogelasticsearch.healthcheck | quote }}
-{{- if .Values.catalogelasticsearch.username }}
+  value: {{ .Values.elasticsearch.healthcheck | quote }}
+{{- if .Values.elasticsearch.username }}
 - name: ES_USER
-  value: {{ .Values.catalogelasticsearch.username | quote }}
+  value: {{ .Values.elasticsearch.username | quote }}
 {{- end }}
-{{- if .Values.catalogelasticsearch.password }}
+{{- if .Values.elasticsearch.password }}
 - name: ES_PASSWORD
   valueFrom:
     secretKeyRef:
-      name: {{ .Values.catalogelasticsearch.fullnameOverride | quote }}
+      name: {{ .Values.elasticsearch.fullnameOverride | quote }}
       key: elasticsearch-password
 {{- end }}
-{{- if .Values.catalogelasticsearch.cacertificatebase64 }}
+{{- if .Values.elasticsearch.cacertificatebase64 }}
 - name: ES_CA_CERTIFICATE_BASE64
   valueFrom:
     secretKeyRef:
-      name: {{ .Values.catalogelasticsearch.fullnameOverride | quote }}
+      name: {{ .Values.elasticsearch.fullnameOverride | quote }}
       key: elasticsearch-ca-certificate
 {{- end }}
 {{- end }}
