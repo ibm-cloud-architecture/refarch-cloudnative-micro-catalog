@@ -2,7 +2,7 @@
   {{- .Release.Name }}-{{ .Chart.Name -}}
 {{- end -}}
 
-{{/* MySQL Init Container Template */}}
+{{/* Catalog Labels Template */}}
 {{- define "catalog.labels" }}
 app: bluecompute
 micro: catalog
