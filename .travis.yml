@@ -86,8 +86,12 @@ jobs:
       before_script:
       # Install nsenter, which is needed for minikube to work
       - bash scripts/install_minikube_and_helm.sh
+      # Install Elasticsearch Chart
+      - helm upgrade --install elasticsearch --version 1.7.2 --set fullnameOverride=catalog-elasticsearch,client.replicas=1,master.replicas=2,master.persistence.enabled=false,data.replicas=1,data.persistence.enabled=false incubator/elasticsearch
+      # Install MySQL Chart
+      - helm upgrade --install mysql --version 0.10.1 --set fullnameOverride=inventory-mysql,mysqlRootPassword=admin123,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb,persistence.enabled=false stable/mysql
       # Install Inventory Chart
-      - helm upgrade --install inventory ibmcase-charts/inventory
+      - helm upgrade --install inventory --set mysql.existingSecret=inventory-mysql ibmcase-charts/inventory
       script:
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
@@ -99,7 +103,7 @@ jobs:
       - helm package chart/catalog
       # helm install Catalog from packaged chart. Use pullPolicy=Never so it uses local docker image
       - CHART_VERSION="$(cat chart/catalog/Chart.yaml | grep version | awk '{print $2}')"
-      - helm upgrade --install catalog --set service.type=NodePort,image.repository="${IMAGE_NAME}",image.tag="${TAG}",image.pullPolicy=Never,inventory.url=http://inventory-inventory:8080 catalog-${CHART_VERSION}.tgz
+      - helm upgrade --install catalog --set service.type=NodePort,image.repository="${IMAGE_NAME}",image.tag="${TAG}",image.pullPolicy=Never,elasticsearch.host=catalog-elasticsearch-client,inventory.url=http://inventory-inventory:8080 catalog-${CHART_VERSION}.tgz
       # Wait for Catalog to be ready
       - kubectl get deployments ${RELEASE_NAME}-catalog -o yaml
       - READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}')

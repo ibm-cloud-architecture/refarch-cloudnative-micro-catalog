@@ -30,41 +30,19 @@ curl:
   imageTag: latest
   imagePullPolicy: IfNotPresent
 
-# Included Community MySQL Chart.
-# - Even if disabled, these fields are used to provide information
-#   for external MySQL deployments.
-# - Also, the MySQL docker image is used in load_data.yaml to load
-#   MySQL deployment (internal or not) with some static inventory data
 elasticsearch:
   enabled: true
-  # If chart is not enabled, this field can be used as external elasticsearch host
-  fullnameOverride: bluecompute-catalog-elasticsearch
   protocol: http
+  host: catalog-elasticsearch-client
   port: 9200
   username:
   password:
   healthcheck: "_cat/health"
   cacertificatebase64:
-  appVersion: 6.3.1
-  image: 
-    repository: docker.elastic.co/elasticsearch/elasticsearch-oss
-    tag: 6.3.1
-    pullPolicy: IfNotPresent
-  client:
-    replicas: 1
-    serviceType: ClusterIP
-  master:
-    replicas: 2
-    persistence:
-      enabled: false
-  data:
-    replicas: 1
-    persistence:
-      enabled: false
 
 # Inventory Microservice URL, which is needed to pull data into Elasticsearch
 inventory:
-  url: http://bluecompute-inventory:8080
+  url:
 
 resources:
   limits:
