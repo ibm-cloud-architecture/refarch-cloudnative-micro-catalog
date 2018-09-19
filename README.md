@@ -61,7 +61,7 @@ $ helm repo add ibmcase-charts https://raw.githubusercontent.com/ibm-cloud-archi
 $ helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
 
 # Install Elasticsearch Chart
-helm upgrade --install elasticsearch \
+$ helm upgrade --install elasticsearch \
   --version 1.7.2 \
   --set fullnameOverride=catalog-elasticsearch \
   --set client.replicas=1 \

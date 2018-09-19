@@ -32,8 +32,8 @@ curl:
 
 elasticsearch:
   enabled: true
-  host: catalog-elasticsearch-client
   protocol: http
+  host: catalog-elasticsearch-client
   port: 9200
   username:
   password:
