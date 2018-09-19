@@ -37,13 +37,8 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 
 {{/* Catalog Elasticsearch Environment Variables */}}
 {{- define "catalog.elasticsearch.environmentvariables" }}
-{{- if .Values.elasticsearch.enabled }}
 - name: ES_HOST
-  value: "{{ .Values.elasticsearch.fullnameOverride }}-client"
-{{- else }}
-- name: ES_HOST
-  value: {{ .Values.elasticsearch.fullnameOverride | quote }}
-{{- end }}
+  value: {{ .Values.elasticsearch.host | quote }}
 - name: ES_PROTOCOL
   value: {{ .Values.elasticsearch.protocol | quote }}
 - name: ES_PORT

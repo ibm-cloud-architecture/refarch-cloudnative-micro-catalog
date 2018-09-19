@@ -38,22 +38,45 @@ Lastly, the source for the `alexeiled/curl` Docker Image can be found at:
 ## Deploy Catalog Application to Kubernetes Cluster from CLI
 To deploy the Catalog Chart and its Elasticsearch dependency Chart to a Kubernetes cluster using Helm CLI, follow the instructions below:
 ```bash
+# Add helm repos for Inventory and Elasticsearch Chart
+$ helm repo add ibmcase-charts https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/spring/docs/charts
+$ helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
+
+# Install Elasticsearch Chart
+helm upgrade --install elasticsearch \
+  --version 1.7.2 \
+  --set fullnameOverride=catalog-elasticsearch \
+  --set client.replicas=1 \
+  --set master.replicas=2 \
+  --set master.persistence.enabled=false \
+  --set data.replicas=1 \
+  --set data.persistence.enabled=false \
+  incubator/elasticsearch
+
+# Install MySQL Chart
+$ helm upgrade --install mysql \
+  --version 0.10.1 \
+  --set fullnameOverride=inventory-mysql \
+  --set mysqlRootPassword=admin123 \
+  --set mysqlUser=dbuser \
+  --set mysqlPassword=password \
+  --set mysqlDatabase=inventorydb \
+  --set persistence.enabled=false \
+  stable/mysql
+
+# Install Inventory Chart
+$ helm upgrade --install inventory --set mysql.existingSecret=inventory-mysql ibmcase-charts/inventory
+
 # Clone catalog repository:
 $ git clone -b spring --single-branch https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-catalog.git
 
 # Go to Chart Directory
 $ cd refarch-cloudnative-micro-catalog/chart/catalog
 
-# Add helm repos for Inventory Chart
-$ helm repo add ibmcase-charts https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/spring/docs/charts
-
-# Install Inventory Chart
-$ helm upgrade --install inventory ibmcase-charts/inventory
-
-# Download Elasticsearch Dependency Chart
-$ helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
-$ helm dependency update
-
 # Deploy Catalog and Elasticsearch to Kubernetes cluster
-$ helm upgrade --install catalog --set service.type=NodePort,inventory.url=http://inventory-inventory:8080 .
+$ helm upgrade --install catalog \
+  --set service.type=NodePort \
+  --set elasticsearch.host=catalog-elasticsearch-client \
+  --set inventory.url=http://inventory-inventory:8080 \
+  .
 ```

@@ -1,5 +1,0 @@
-dependencies:
-  - name: elasticsearch
-    version: 1.4.0
-    repository: http://storage.googleapis.com/kubernetes-charts-incubator
-    condition: elasticsearch.enabled
