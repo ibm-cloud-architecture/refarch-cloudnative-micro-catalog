@@ -88,7 +88,7 @@ $ helm upgrade --install inventory --set mysql.existingSecret=inventory-mysql ib
 # Go to Chart Directory
 $ cd chart/catalog
 
-# Deploy Catalog and Elasticsearch to Kubernetes cluster
+# Deploy Catalog to Kubernetes cluster
 $ helm upgrade --install catalog \
   --set service.type=NodePort \
   --set elasticsearch.host=catalog-elasticsearch-client \

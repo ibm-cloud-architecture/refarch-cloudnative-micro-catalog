@@ -73,7 +73,7 @@ $ git clone -b spring --single-branch https://github.com/ibm-cloud-architecture/
 # Go to Chart Directory
 $ cd refarch-cloudnative-micro-catalog/chart/catalog
 
-# Deploy Catalog and Elasticsearch to Kubernetes cluster
+# Deploy Catalog to Kubernetes cluster
 $ helm upgrade --install catalog \
   --set service.type=NodePort \
   --set elasticsearch.host=catalog-elasticsearch-client \
