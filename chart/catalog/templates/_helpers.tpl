@@ -2,7 +2,7 @@
   {{- .Release.Name }}-{{ .Chart.Name -}}
 {{- end -}}
 
-{{/* MySQL Init Container Template */}}
+{{/* Catalog Labels Template */}}
 {{- define "catalog.labels" }}
 app: bluecompute
 micro: catalog
@@ -54,16 +54,21 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 - name: ES_PASSWORD
   valueFrom:
     secretKeyRef:
-      name: {{ .Values.elasticsearch.fullnameOverride | quote }}
+      name: {{ template "catalog.elasticsearch.secretName" . }}
       key: elasticsearch-password
 {{- end }}
 {{- if .Values.elasticsearch.cacertificatebase64 }}
 - name: ES_CA_CERTIFICATE_BASE64
   valueFrom:
     secretKeyRef:
-      name: {{ .Values.elasticsearch.fullnameOverride | quote }}
+      name: {{ template "catalog.elasticsearch.secretName" . }}
       key: elasticsearch-ca-certificate
 {{- end }}
+{{- end }}
+
+{{/* Catalog Elasticsearch Secret Name */}}
+{{- define "catalog.elasticsearch.secretName" }}
+  {{ template "catalog.fullname" . }}-elasticsearch-secret
 {{- end }}
 
 {{/* Catalog Elasticsearch Health Check */}}
@@ -92,9 +97,7 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 
 {{/* Inventory URL */}}
 {{- define "catalog.inventory" -}}
-  {{- if .Values.inventory.enabled -}}
-    {{- printf "http://%s-inventory:8080" .Release.Name -}}
-  {{- else if .Values.inventory.url -}}
+  {{- if .Values.inventory.url -}}
     {{ .Values.inventory.url }}
   {{- else -}}
     {{/* assume one is installed with release */}}

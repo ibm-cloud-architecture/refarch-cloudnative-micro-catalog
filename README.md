@@ -59,13 +59,18 @@ In this section, we are going to deploy the Catalog Application, along with a My
 # Go to Chart Directory
 $ cd chart/catalog
 
-# Download Elasticsearch, Inventory, and MySQL Dependency charts
+# Add helm repos for Inventory Chart
+$ helm repo add ibmcase-charts https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/spring/docs/charts
+
+# Install Inventory Chart
+$ helm upgrade --install inventory ibmcase-charts/inventory
+
+# Download Elasticsearch Dependency Chart
 $ helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
-$ helm repo add ibmcase-charts https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/master/docs/charts
 $ helm dependency update
 
 # Deploy Catalog and Elasticsearch to Kubernetes cluster
-$ helm upgrade --install catalog --set service.type=NodePort .
+$ helm upgrade --install catalog --set service.type=NodePort,inventory.url=http://inventory-inventory:8080 .
 ```
 
 The last command will give you instructions on how to access/test the Catalog application. Please note that before the Catalog application starts, the Elasticsearch deployment must be fully up and running, which normally takes a couple of minutes. On top of that, the Inventory dependency chart and its MySQL datastore must both be fully up and running before Catalog can start. With Kubernetes [Init Containers](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/), the Catalog Deployment polls for Elasticsearch, Inventory App, and MySQL readiness status so that Catalog can start once they are all ready, or error out if any of them fails to start.

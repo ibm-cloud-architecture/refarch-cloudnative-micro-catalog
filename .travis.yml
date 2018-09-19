@@ -86,9 +86,9 @@ jobs:
       before_script:
       # Install nsenter, which is needed for minikube to work
       - bash scripts/install_minikube_and_helm.sh
+      # Install Inventory Chart
+      - helm upgrade --install inventory ibmcase-charts/inventory
       script:
-      # Get cluster info
-      - kubectl cluster-info
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
       # Download Catalog chart dependencies (MySQL)
@@ -99,7 +99,7 @@ jobs:
       - helm package chart/catalog
       # helm install Catalog from packaged chart. Use pullPolicy=Never so it uses local docker image
       - CHART_VERSION="$(cat chart/catalog/Chart.yaml | grep version | awk '{print $2}')"
-      - helm upgrade --install catalog --set service.type=NodePort,image.repository="${IMAGE_NAME}",image.tag="${TAG}",image.pullPolicy=Never catalog-${CHART_VERSION}.tgz
+      - helm upgrade --install catalog --set service.type=NodePort,image.repository="${IMAGE_NAME}",image.tag="${TAG}",image.pullPolicy=Never,inventory.url=http://inventory-inventory:8080 catalog-${CHART_VERSION}.tgz
       # Wait for Catalog to be ready
       - kubectl get deployments ${RELEASE_NAME}-catalog -o yaml
       - READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}')
