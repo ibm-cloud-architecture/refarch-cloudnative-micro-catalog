@@ -31,7 +31,6 @@ curl:
   imagePullPolicy: IfNotPresent
 
 elasticsearch:
-  enabled: true
   protocol: http
   host: catalog-elasticsearch-client
   port: 9200
