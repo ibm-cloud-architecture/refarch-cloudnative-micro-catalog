@@ -84,3 +84,91 @@ $ curl http://localhost:8080/micro/items
 
 That's it, you have successfully deployed and tested the Catalog microservice.
 
+## Deploy the Catalog Docker Container
+
+In this section you will run the Spring Boot application on Open Liberty using Docker. Before we show you how to do so, you will need to do the following.
+* Deploy a MySQL Docker container as shown [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/blob/spring/OpenLiberty.MD#deploy-the-mysql-docker-container)
+* Populate MySQL database with data as shown [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/blob/spring/OpenLiberty.MD#populate-the-mysql-database) 
+* Deploy the Inventory Docker Container as shown [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/blob/spring/OpenLiberty.MD#deploy-the-inventory-docker-container)
+* Deploy the Elasticsearch Docker Container as shown in [here](#deploy-the-elasticsearch-docker-container)
+
+Once all of them are ready and deployed, we can run the Spring Boot Catalog application on Open Liberty docker as follows:
+
+1. Open [`src/main/resources/application.yml`](src/main/resources/application.yml) file, enter the following values as follows, and save the file:
+
+```
+# Server configuration
+server:
+  context-path: /micro
+  port: 8080
+
+# Spring properties
+spring:
+  application:
+     name: catalog-microservice
+
+# Elasticsearch
+elasticsearch:
+  url: http://catalogelasticsearch:9200
+  user: elastic
+  password: changeme
+  index: micro
+  doc_type: items
+
+inventoryService:
+  url: http://inventory:9080
+```
+
+2. Modify your pom to generate the docker image. Follow the below steps.
+- Open [`pom.xml`](pom.xml)
+- Modify the `boost-maven-plugin` as below.
+
+```
+            <plugin>
+                <groupId>io.openliberty.boost</groupId>
+                <artifactId>boost-maven-plugin</artifactId>
+                <version>0.1</version>
+                <executions>
+                  <execution>
+                    <!-- <phase>package</phase>
+                    <goals>
+                        <goal>package</goal>
+                    </goals> -->
+                    <goals>
+                      <goal>docker-build</goal>
+                    </goals>
+                  </execution>
+                </executions>
+            </plugin>
+```
+
+3. To deploy the Catalog container, run the following commands:
+
+Before building the Docker image, make sure there are no other dockerfiles in your repo. If a dockerfile already exists, please remove it.
+
+```bash
+# Build the Docker Image
+$ mvn clean install 
+
+Once done, a docker image named `liberty-catalog-spring:latest` will be built automatically for you.
+
+# Start the Catalog Container
+$ docker run --name catalog \
+    -e ES_HOST=catalogelasticsearch \
+    -e ES_PORT=9200 \
+    -e ES_USER=elastic \
+    -e ES_PASSWORD=changeme \
+    -e INVENTORY_URL=http://inventory:9080 \
+    -p 9082:9080 \
+    --link inventorymysql:inventorymysql \
+    --link catalogelasticsearch:catalogelasticsearch \
+    --link inventory:inventory \
+    -d liberty-catalog-spring:latest
+```
+
+If everything works successfully, you should be able to get some data when you run the following command:
+```bash
+$ curl http://localhost:9082/micro/items
+```
+
+
