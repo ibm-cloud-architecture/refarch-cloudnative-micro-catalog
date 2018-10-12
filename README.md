@@ -16,6 +16,7 @@ https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/tree/sp
     + [Deploy the Elasticsearch Docker Container](#deploy-the-elasticsearch-docker-container)
     + [Deploy the Catalog Docker Container](#deploy-the-catalog-docker-container)
 * [Run Catalog Service application on localhost](#run-catalog-service-application-on-localhost)
+* [Deploy Catalog Application on OpenLiberty](#deploy-inventory-application-on-openliberty)
 * [Optional: Setup CI/CD Pipeline](#optional-setup-cicd-pipeline)
 * [Conclusion](#conclusion)
 * [Contributing](#contributing)
@@ -250,6 +251,10 @@ $ curl http://localhost:8080/micro/items
 ```
 
 That's it, you have successfully deployed and tested the Catalog microservice.
+
+## Deploy Catalog Application on OpenLiberty
+
+The Spring Boot applications can be deployed on WebSphere Application Server Liberty as well. When the application is deployed on Liberty, the default server that is embedded as part of the application will be disabled and it will use Liberty instead of it. For instructions on how to deploy it on OpenLiberty, follow the instructions [here](OpenLiberty.MD).
 
 ## Optional: Setup CI/CD Pipeline
 If you would like to setup an automated Jenkins CI/CD Pipeline for this repository, we provided a sample [Jenkinsfile](Jenkinsfile), which uses the [Jenkins Pipeline](https://jenkins.io/doc/book/pipeline/) syntax of the [Jenkins Kubernetes Plugin](https://github.com/jenkinsci/kubernetes-plugin) to automatically create and run Jenkis Pipelines from your Kubernetes environment. 
