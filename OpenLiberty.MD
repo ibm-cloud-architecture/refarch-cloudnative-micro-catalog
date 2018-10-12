@@ -1,8 +1,8 @@
-###### refarch-cloudnative-micro-inventory
+###### refarch-cloudnative-micro-catalog
 
-## Deploy Inventory Application on Open Liberty
+## Deploy Catalog Application on Open Liberty
 
-You can run your Spring Boot applications on Open Liberty. Open Liberty will be the packaged server and the application will run on it instead of the default embedded server. Below are steps to run the Inventory application on Open Liberty.
+You can run your Spring Boot applications on Open Liberty. Open Liberty will be the packaged server and the application will run on it instead of the default embedded server. Below are steps to run the Catalog application on Open Liberty.
 
 ## Table of Contents
 + [Deploy the Elasticsearch Docker Container](#deploy-the-elasticsearch-docker-container)
@@ -149,9 +149,13 @@ Before building the Docker image, make sure there are no other dockerfiles in yo
 ```bash
 # Build the Docker Image
 $ mvn clean install 
+```
 
 Once done, a docker image named `liberty-catalog-spring:latest` will be built automatically for you.
 
+Run the docker container as follows.
+
+```
 # Start the Catalog Container
 $ docker run --name catalog \
     -e ES_HOST=catalogelasticsearch \
