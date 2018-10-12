@@ -16,7 +16,7 @@ https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/tree/sp
     + [Deploy the Elasticsearch Docker Container](#deploy-the-elasticsearch-docker-container)
     + [Deploy the Catalog Docker Container](#deploy-the-catalog-docker-container)
 * [Run Catalog Service application on localhost](#run-catalog-service-application-on-localhost)
-* [Deploy Catalog Application on OpenLiberty](#deploy-inventory-application-on-openliberty)
+* [Deploy Catalog Application on OpenLiberty](#deploy-catalog-application-on-openliberty)
 * [Optional: Setup CI/CD Pipeline](#optional-setup-cicd-pipeline)
 * [Conclusion](#conclusion)
 * [Contributing](#contributing)
