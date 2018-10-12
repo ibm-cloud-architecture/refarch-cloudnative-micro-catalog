@@ -9,11 +9,11 @@ You can run your Spring Boot applications on Open Liberty. Open Liberty will be 
 + [Deploy the Catalog locally](#deploy-the-catalog-locally)
 + [Deploy the Catalog Docker Container](#deploy-the-catalog-docker-container)
 
-Before deploying the Catalog service locally using maven or on docker, make sure that the Inventory Service and all its dependencies like MySQL are up and running. If not follow the instructions [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/blob/spring/OpenLiberty.MD) to start the Inventory service.
+Before deploying the Catalog service locally using Maven or on Docker, make sure that the Inventory service and all its dependencies like MySQL are up and running. If not follow the instructions [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/blob/spring/OpenLiberty.MD) to start the Inventory service.
 
 ## Deploy the Elasticsearch Docker Container
 
-Run the Elasticsearch as a docker container. Below is the command to start it.
+Run the Elasticsearch as a Docker container. Below is the command to start it.
 ```bash
 # Start a Elasticsearch Container with a database user, a password, and create a new database
 $ docker run --name catalogelasticsearch \
@@ -28,8 +28,8 @@ $ docker run --name catalogelasticsearch \
 In this section you will build and run the Spring Boot application on Open Liberty locally using Maven. Before we show you how to do so, you will need to do the following:
 * Deploy a MySQL Docker container as shown [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/blob/spring/OpenLiberty.MD#deploy-the-mysql-docker-container)
 * Populate MySQL database with data as shown [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/blob/spring/OpenLiberty.MD#populate-the-mysql-database) 
-* Deploy the Inventory Docker Container as shown [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/blob/spring/OpenLiberty.MD#deploy-the-inventory-docker-container)
-* Deploy the Elasticsearch Docker Container as shown in [here](#deploy-the-elasticsearch-docker-container)
+* Deploy the Inventory Docker container as shown [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/blob/spring/OpenLiberty.MD#deploy-the-inventory-docker-container)
+* Deploy the Elasticsearch Docker container as shown in [here](#deploy-the-elasticsearch-docker-container)
 
 Once all the above is done, we can run the Spring Boot Catalog application locally as follows:
 
@@ -89,8 +89,8 @@ That's it, you have successfully deployed and tested the Catalog microservice.
 In this section you will run the Spring Boot application on Open Liberty using Docker. Before we show you how to do so, you will need to do the following.
 * Deploy a MySQL Docker container as shown [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/blob/spring/OpenLiberty.MD#deploy-the-mysql-docker-container)
 * Populate MySQL database with data as shown [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/blob/spring/OpenLiberty.MD#populate-the-mysql-database) 
-* Deploy the Inventory Docker Container as shown [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/blob/spring/OpenLiberty.MD#deploy-the-inventory-docker-container)
-* Deploy the Elasticsearch Docker Container as shown in [here](#deploy-the-elasticsearch-docker-container)
+* Deploy the Inventory Docker container as shown [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/blob/spring/OpenLiberty.MD#deploy-the-inventory-docker-container)
+* Deploy the Elasticsearch Docker container as shown in [here](#deploy-the-elasticsearch-docker-container)
 
 Once all of them are ready and deployed, we can run the Spring Boot Catalog application on Open Liberty docker as follows:
 
@@ -119,7 +119,7 @@ inventoryService:
   url: http://inventory:9080
 ```
 
-2. Modify your pom to generate the docker image. Follow the below steps.
+2. Modify your POM file to generate the Docker image. Follow the below steps.
 - Open [`pom.xml`](pom.xml)
 - Modify the `boost-maven-plugin` as below.
 
@@ -151,9 +151,9 @@ Before building the Docker image, make sure there are no other dockerfiles in yo
 $ mvn clean install 
 ```
 
-Once done, a docker image named `liberty-catalog-spring:latest` will be built automatically for you.
+Once done, a Docker image named `liberty-catalog-spring:latest` will be built automatically for you.
 
-Run the docker container as follows.
+Run the Docker container as follows.
 
 ```
 # Start the Catalog Container
