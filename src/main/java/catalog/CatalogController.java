@@ -5,6 +5,8 @@ import catalog.models.Item;
 import java.util.List;
 
 import catalog.models.ItemService;
+
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,20 +32,21 @@ public class CatalogController {
 
     /**
      * @return all items in inventory
+     * @throws JSONException 
      */
-    @HystrixCommand(fallbackMethod = "failGood")
     @RequestMapping(value = "/items", method = RequestMethod.GET)
     @ResponseBody
-    List<Item> getInventory() {
+    List<Item> getInventory() throws JSONException {
     	logger.info("/items");
         return itemsRepo.findAll();
     }
 
     /**
      * @return item by id
+     * @throws JSONException 
      */
     @RequestMapping(value = "/items/{id}", method = RequestMethod.GET)
-    ResponseEntity<?> getById(@PathVariable long id) {
+    ResponseEntity<?> getById(@PathVariable long id) throws JSONException {
     	logger.info("/items/" + id);
         final Item item = itemsRepo.findById(id);
         if (item == null) {
@@ -55,10 +58,11 @@ public class CatalogController {
 
     /**
      * @return item(s) containing name
+     * @throws JSONException 
      */
     @RequestMapping(value = "/items/name/{name}", method = RequestMethod.GET)
     @ResponseBody
-    List<Item> getByName(@PathVariable String name) {
+    List<Item> getByName(@PathVariable String name) throws JSONException {
     	logger.info("/items/name/" + name);
         return itemsRepo.findByNameContaining(name);
     }

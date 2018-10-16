@@ -1,7 +1,7 @@
 # Server configuration
 server:
   context-path: /micro
-  port: 8081
+  port: 8080
 
 # Spring properties
 spring:
@@ -18,4 +18,3 @@ elasticsearch:
 
 inventoryService:
   url: http://127.0.0.1:8080
- 

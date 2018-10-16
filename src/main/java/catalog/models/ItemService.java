@@ -5,11 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +45,8 @@ public class ItemService {
     }
 
     // Get all rows from database
-    public List<Item> findAll() {
+    @HystrixCommand(fallbackMethod = "failGood")
+    public List<Item> findAll() throws JSONException {
         List<Item> list;
         final String req_url = url + "/" + index + "/" + doc_type + "/_search";
         final Response response = perform_request(req_url);
@@ -59,9 +63,17 @@ public class ItemService {
 
         return list;
     }
+    
+    public List<Item> failGood(){
+    	// test fallback
+    	Item item = new Item("test","test",0,"test","test",0);
+    	List<Item> list = new ArrayList<Item>();
+    	list.add(item);
+    	return list;
+    }
 
     // Get all rows from database
-    public Item findById(long id) {
+    public Item findById(long id) throws JSONException {
         Item item = null;
         String req_url = url + "/" + index + "/" + doc_type + "/" + id;
         Response response = perform_request(req_url);
@@ -84,7 +96,7 @@ public class ItemService {
     }
 
     // Get all rows from database
-    public List<Item> findByNameContaining(String name) {
+    public List<Item> findByNameContaining(String name) throws JSONException {
         List<Item> list;
         String req_url = url + "/" + index + "/" + doc_type + "/_search?q=name:" + name;
         Response response = perform_request(req_url);
@@ -128,7 +140,7 @@ public class ItemService {
         return response;
     }
 
-    private List<Item> getItemsFromResponse(Response response) throws IOException {
+    private List<Item> getItemsFromResponse(Response response) throws IOException, JSONException {
         List<Item> list = new ArrayList<Item>();
 
         JSONObject resp = new JSONObject(response.body().string());

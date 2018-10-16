@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +65,7 @@ public class ElasticSearch {
 
     }
     
-    private Map<Long, Item> getAllRowsFromCache() {
+    private Map<Long, Item> getAllRowsFromCache() throws JSONException {
     	final List<catalog.models.Item> allItems = itemService.findAll();
     	
     	
@@ -79,7 +80,7 @@ public class ElasticSearch {
     }
 
     // load multi-rows
-    public void loadRows(List<Item> items) {
+    public void loadRows(List<Item> items) throws JSONException {
     	// convert Item to JSONArray
     	final ObjectMapper objMapper = new ObjectMapper();
     	
