@@ -13,17 +13,15 @@ To build the application, we used maven build. Maven is a project management too
 
 1. Clone this repository.
 
-   `git clone https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory.git`
+   `git clone https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-catalog.git`
    
-2. `cd refarch-cloudnative-micro-inventory/`
+2. `cd refarch-cloudnative-micro-catalog/`
 
 3. Checkout MicroProfile branch.
 
    `git checkout microprofile`
-   
-4. Go to Catalog ... `cd catalog`
 
-5. Run this command. This command builds the project and installs it.
+4. Run this command. This command builds the project and installs it.
 
    `mvn install`
    
