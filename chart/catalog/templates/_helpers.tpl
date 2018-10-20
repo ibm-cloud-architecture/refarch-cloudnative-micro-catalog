@@ -8,7 +8,8 @@
 
 {{/* Catalog Labels Template */}}
 {{- define "catalog.labels" }}
-app: bluecompute
+app: catalog
+version: v1
 micro: catalog
 tier: backend
 heritage: {{ .Release.Service | quote }}
