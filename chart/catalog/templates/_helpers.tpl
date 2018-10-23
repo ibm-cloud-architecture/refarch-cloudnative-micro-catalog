@@ -8,9 +8,9 @@
 
 {{/* Catalog Labels Template */}}
 {{- define "catalog.labels" }}
-app: bluecompute
-micro: catalog
-tier: backend
+{{- range $key, $value := .Values.labels }}
+{{ $key }}: {{ $value | quote }}
+{{- end }}
 heritage: {{ .Release.Service | quote }}
 release: {{ .Release.Name | quote }}
 chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
