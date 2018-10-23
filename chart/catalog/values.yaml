@@ -48,3 +48,8 @@ resources:
     memory: 384Mi
   requests:
     memory: 64Mi
+
+labels:
+  app: catalog
+  version: v1
+  tier: backend
