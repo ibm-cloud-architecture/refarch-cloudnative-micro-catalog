@@ -42,6 +42,28 @@ To build the application, we used maven build. Maven is a project management too
 [INFO] Final Memory: 24M/309M
 [INFO] ------------------------------------------------------------------------
 ```
+By default, the application runs on [WebSphere Liberty with Web Profile](https://developer.ibm.com/wasdev/websphere-liberty/). You can also run it on [Open Liberty](https://openliberty.io/) as follows.
+
+`mvn clean install -Popenliberty`
+
+ If this runs successfully, you will be able to see the below messages.
+ 
+ ```
+[INFO] --- maven-failsafe-plugin:2.18.1:verify (verify-results) @ catalog ---
+[INFO] Failsafe report directory: /Users/user@ibm.com/BlueCompute/refarch-cloudnative-micro-catalog/target/test-reports/it
+[INFO]
+[INFO] --- maven-install-plugin:2.4:install (default-install) @ catalog ---
+[INFO] Installing /Users/user@ibm.com/BlueCompute/refarch-cloudnative-micro-catalog/target/catalog-1.0-SNAPSHOT.war to /Users/user@ibm.com/.m2/repository/projects/catalog/1.0-SNAPSHOT/catalog-1.0-SNAPSHOT.war
+[INFO] Installing /Users/user@ibm.com/BlueCompute/refarch-cloudnative-micro-catalog/pom.xml to /Users/user@ibm.com/.m2/repository/projects/catalog/1.0-SNAPSHOT/catalog-1.0-SNAPSHOT.pom
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 29.106 s
+[INFO] Finished at: 2018-10-25T11:36:45-05:00
+[INFO] Final Memory: 33M/449M
+[INFO] ------------------------------------------------------------------------
+ ```
+
 ## Setting up Elasticsearch
 
 To set up Elasticsearch locally, we are running it as a docker container. You need [Docker](https://www.docker.com/) as a prerequisite.
@@ -72,6 +94,8 @@ If you want to access the traces for catalog service, run Zipkin as a docker con
 
 ## Running the app and stopping it
 
+Before running this application, make sure [Inventory Service](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/blob/microprofile/inventory/building-locally.md) is up and running.
+
 1. Set the environment variables before you start your application. The host and port depends on the service you use. You can run the Elastic Search locally on your system using the Elastic Search docker container or use the [Elasticsearch Compose](https://www.ibm.com/cloud/compose/elasticsearch) available in [IBM Cloud](https://www.ibm.com/cloud/).
 
 ```
@@ -96,7 +120,9 @@ To set this, do the following.
 
 Insert `-Dclient.InventoryServiceClient/mp-rest/url=http://localhost:9081/inventory/rest/inventory/` in the [jvm.options](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/blob/microprofile/catalog/src/main/liberty/config/jvm.options) located at `src/main/liberty/config`
 
-After doing run, run `mvn install`
+After doing it
+- Run `mvn install`, if running on [WebSphere Liberty with Web Profile](https://developer.ibm.com/wasdev/websphere-liberty/).
+- Run `mvn install -Popenliberty`, if running on [Open Liberty](https://openliberty.io/).
 
 2. Start your server.
 
