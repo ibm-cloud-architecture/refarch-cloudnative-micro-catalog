@@ -6,7 +6,7 @@ public class TestApplication extends EndpointTest {
 
     @Test
     public void testDeployment() {
-        testEndpoint("/", "<h1>Welcome to your Liberty Application</h1>");
+        testEndpoint("/", "Liberty");
     }
 
 }
