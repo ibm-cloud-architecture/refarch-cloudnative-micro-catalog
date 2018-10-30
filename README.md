@@ -38,9 +38,9 @@ Here is an overview of the project's features:
 
 ### APIs
 * Get all items in catalog:
-    + `http://localhost:8080/micro/items`
+    + `http://localhost:8081/micro/items`
 * Get item from catalog using id:
-    + `http://localhost:8080/micro/items/${itemId}`
+    + `http://localhost:8081/micro/items/${itemId}`
 
 ## Pre-requisites:
 * Create a Kubernetes Cluster by following the steps [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes#create-a-kubernetes-cluster).
@@ -214,7 +214,7 @@ Where:
 
 If everything works successfully, you should be able to get some data when you run the following command:
 ```bash
-$ curl http://localhost:8080/micro/items
+$ curl http://localhost:8081/micro/items
 ```
 
 ## Run Catalog Service application on localhost
@@ -247,7 +247,7 @@ $ java -jar build/libs/micro-catalog-0.0.1.jar
 
 4. Validate. You should get a list of all catalog items:
 ```bash
-$ curl http://localhost:8080/micro/items
+$ curl http://localhost:8081/micro/items
 ```
 
 That's it, you have successfully deployed and tested the Catalog microservice.

@@ -72,7 +72,7 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 
 {{/* Catalog Elasticsearch Health Check */}}
 {{- define "catalog.elasticsearch.test" -}}
-  {{- printf "grep green; do echo waiting for elasticsearch; sleep 1; done; echo elasticsearch is ready" -}}
+  {{- printf "grep -E 'green|yellow'; do echo waiting for elasticsearch; sleep 1; done; echo elasticsearch is ready" -}}
 {{- end -}}
 
 {{/* Inventory Init Container Template */}}

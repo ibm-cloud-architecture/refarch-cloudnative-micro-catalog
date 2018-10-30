@@ -39,7 +39,7 @@ Once all the above is done, we can run the Spring Boot Catalog application local
 # Server configuration
 server:
   context-path: /micro
-  port: 8080
+  port: 8081
 
 # Spring properties
 spring:
@@ -55,7 +55,7 @@ elasticsearch:
   doc_type: items
 
 inventoryService:
-  url: http://127.0.0.1:9081
+  url: http://127.0.0.1:9080
 ```
 
 2. Build the application as follows.
@@ -79,7 +79,7 @@ Once it is deployed, you will see something like below.
 
 4. Validate. You should get a list of all catalog items:
 ```bash
-$ curl http://localhost:8080/micro/items
+$ curl http://localhost:8081/micro/items
 ```
 
 That's it, you have successfully deployed and tested the Catalog microservice.
@@ -100,7 +100,7 @@ Once all of them are ready and deployed, we can run the Spring Boot Catalog appl
 # Server configuration
 server:
   context-path: /micro
-  port: 8080
+  port: 8081
 
 # Spring properties
 spring:

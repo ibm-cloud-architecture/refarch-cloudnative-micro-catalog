@@ -31,9 +31,9 @@ Lastly, the source for the `alexeiled/curl` Docker Image can be found at:
 
 ## APIs
 * Get all items in catalog:
-    + `http://localhost:8080/micro/items`
+    + `http://localhost:8081/micro/items`
 * Get item from catalog using id:
-    + `http://localhost:8080/micro/items/${itemId}`
+    + `http://localhost:8081/micro/items/${itemId}`
 
 ## Deploy Catalog Application to Kubernetes Cluster from CLI
 To deploy the Catalog Chart and its Elasticsearch dependency Chart to a Kubernetes cluster using Helm CLI, follow the instructions below:
