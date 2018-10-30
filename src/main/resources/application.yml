@@ -1,7 +1,7 @@
 # Server configuration
 server:
   context-path: /micro
-  port: 8080
+  port: 8081
 
 # Spring properties
 spring:
