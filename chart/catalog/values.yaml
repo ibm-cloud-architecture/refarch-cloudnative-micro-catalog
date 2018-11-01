@@ -19,6 +19,8 @@ service:
   servicePortHttps: 9443
   zipkinPort: 9411
   zipkinName: zipkin
+volumes:
+  mountPath: /opt/ibm/wlp/usr/shared
 hpa:
   enabled: false
   minReplicas: 1
