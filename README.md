@@ -62,8 +62,9 @@ $ helm repo add ibmcase-charts https://raw.githubusercontent.com/ibm-cloud-archi
 
 # Install Elasticsearch Chart
 $ helm upgrade --install elasticsearch \
-  --version 1.13.1 \
+  --version 1.13.2 \
   --set fullnameOverride=catalog-elasticsearch \
+  --set cluster.env.MINIMUM_MASTER_NODES="2" \
   --set client.replicas=1 \
   --set master.replicas=2 \
   --set master.persistence.enabled=false \
