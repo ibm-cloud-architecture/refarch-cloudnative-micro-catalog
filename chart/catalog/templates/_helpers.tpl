@@ -18,6 +18,7 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 
 {{/* Catalog Elasticsearch Init Container Template */}}
 {{- define "catalog.elasticsearch.initcontainer" }}
+{{- if not (or .Values.global.istio.enabled .Values.istio.enabled) }}
 - name: test-elasticsearch
   image: {{ .Values.curl.image }}:{{ .Values.curl.imageTag }}
   imagePullPolicy: {{ .Values.curl.imagePullPolicy }}
@@ -33,6 +34,7 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
   {{- end }}
   env:
   {{- include "catalog.elasticsearch.environmentvariables" . | indent 2 }}
+{{- end }}
 {{- end }}
 
 {{/* Catalog Elasticsearch Environment Variables */}}
@@ -77,6 +79,7 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 
 {{/* Inventory Init Container Template */}}
 {{- define "catalog.inventory.initcontainer" }}
+{{- if not (or .Values.global.istio.enabled .Values.istio.enabled) }}
 - name: test-inventory
   image: {{ .Values.curl.image }}:{{ .Values.curl.imageTag }}
   imagePullPolicy: {{ .Values.curl.imagePullPolicy }}
@@ -86,6 +89,7 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
   - "until curl ${INVENTORY_URL}; do echo waiting for inventory-service at ${INVENTORY_URL}; sleep 1; done; echo inventory is ready"
   env:
   {{- include "catalog.inventory.environmentvariables" . | indent 2 }}
+{{- end }}
 {{- end }}
 
 {{/* Inventory Environment Variables */}}
