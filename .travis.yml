@@ -87,9 +87,9 @@ jobs:
       # Install nsenter, which is needed for minikube to work
       - bash scripts/install_minikube_and_helm.sh
       # Install Elasticsearch Chart
-      - helm upgrade --install elasticsearch --version 1.7.2 --set fullnameOverride=catalog-elasticsearch,client.replicas=1,master.replicas=2,master.persistence.enabled=false,data.replicas=1,data.persistence.enabled=false incubator/elasticsearch
+      - helm upgrade --install elasticsearch --version 1.13.2 --set fullnameOverride=catalog-elasticsearch,cluster.env.MINIMUM_MASTER_NODES="2",client.replicas=1,master.replicas=2,master.persistence.enabled=false,data.replicas=1,data.persistence.enabled=false stable/elasticsearch
       # Install MySQL Chart
-      - helm upgrade --install mysql --version 0.10.1 --set fullnameOverride=inventory-mysql,mysqlRootPassword=admin123,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb,persistence.enabled=false stable/mysql
+      - helm upgrade --install mysql --version 0.10.2 --set fullnameOverride=inventory-mysql,mysqlRootPassword=admin123,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb,persistence.enabled=false stable/mysql
       # Install Inventory Chart
       - helm upgrade --install inventory --set mysql.existingSecret=inventory-mysql ibmcase-charts/inventory
       script:

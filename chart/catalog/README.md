@@ -40,22 +40,22 @@ To deploy the Catalog Chart and its Elasticsearch dependency Chart to a Kubernet
 ```bash
 # Add helm repos for Inventory and Elasticsearch Chart
 $ helm repo add ibmcase-charts https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/spring/docs/charts
-$ helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
 
 # Install Elasticsearch Chart
 $ helm upgrade --install elasticsearch \
-  --version 1.7.2 \
+  --version 1.13.2 \
   --set fullnameOverride=catalog-elasticsearch \
+  --set cluster.env.MINIMUM_MASTER_NODES="2" \
   --set client.replicas=1 \
   --set master.replicas=2 \
   --set master.persistence.enabled=false \
   --set data.replicas=1 \
   --set data.persistence.enabled=false \
-  incubator/elasticsearch
+  stable/elasticsearch
 
 # Install MySQL Chart
 $ helm upgrade --install mysql \
-  --version 0.10.1 \
+  --version 0.10.2 \
   --set fullnameOverride=inventory-mysql \
   --set mysqlRootPassword=admin123 \
   --set mysqlUser=dbuser \
