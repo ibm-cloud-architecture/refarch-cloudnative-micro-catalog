@@ -138,7 +138,7 @@ To deploy it on Minikube, please follow the instructions provided [here](https:/
 
 Before deploying catalog service, make sure inventory service is up and running.
 
-To deploy the app locally and test the individual service, please follow the instructions provided [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/blob/microprofile/catalog/building-locally.md).
+To deploy the app locally and test the individual service, please follow the instructions provided [here](/building-locally.md).
 
 ## References
 
