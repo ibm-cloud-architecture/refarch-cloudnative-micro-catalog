@@ -107,3 +107,17 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     {{- printf "http://%s-inventory:8080" .Release.Name -}}
   {{- end }}
 {{- end -}}
+
+{{/* Istio Gateway */}}
+{{- define "catalog.istio.gateway" }}
+  {{- if or .Values.global.istio.gateway.name .Values.istio.gateway.enabled .Values.istio.gateway.name }}
+  gateways:
+  {{ if .Values.global.istio.gateway.name -}}
+  - {{ .Values.global.istio.gateway.name }}
+  {{- else if .Values.istio.gateway.enabled }}
+  - {{ template "catalog.fullname" . }}-gateway
+  {{ else if .Values.istio.gateway.name -}}
+  - {{ .Values.istio.gateway.name }}
+  {{ end }}
+  {{- end }}
+{{- end }}
