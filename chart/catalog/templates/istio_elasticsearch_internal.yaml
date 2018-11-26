@@ -1,0 +1,18 @@
+{{ if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ .Values.elasticsearch.host }}
+spec:
+  host: {{ .Values.elasticsearch.host }}.{{ .Release.Namespace }}.svc.cluster.local
+  trafficPolicy:
+    portLevelSettings:
+    - port:
+        number: 9200
+      tls:
+        mode: DISABLE
+    - port:
+        number: 9300
+      tls:
+        mode: DISABLE
+{{ end }}
