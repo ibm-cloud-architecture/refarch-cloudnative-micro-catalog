@@ -58,7 +58,7 @@ jobs:
       # Wait for MySQL to start, then load it with catalog data
       - until mysql -h 127.0.0.1 -P 3306 -uroot <mysql_data.sql; do echo "waiting for mysql"; sleep 1; done; echo "Loaded data into database"
       # Start inventory container
-      - docker run --net=host --name inventory -d -p 8080:8080 -e MYSQL_URI="mysql://root@127.0.0.1:3306/inventorydb" ibmcase/bluecompute-inventory:0.5.0
+      - docker run --net=host --name inventory -d -p 8080:8080 ibmcase/bluecompute-inventory:0.6.0
       # Wait for elasticsearch and inventory to start
       - sleep 25
       # Test Inventory
