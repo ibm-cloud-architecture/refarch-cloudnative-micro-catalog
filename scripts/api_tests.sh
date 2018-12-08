@@ -34,7 +34,7 @@ function get_items() {
 	if [ ! "$CURL" -gt "0" ]; then
 		echo "get_items: ❌ could not get items";
         exit 1;
-    else 
+    else
     	echo "get_items: ✅";
     fi
 }

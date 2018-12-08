@@ -39,10 +39,10 @@ Lastly, the source for the `alexeiled/curl` Docker Image can be found at:
 To deploy the Catalog Chart and its Elasticsearch dependency Chart to a Kubernetes cluster using Helm CLI, follow the instructions below:
 ```bash
 # Add helm repos for Inventory and Elasticsearch Chart
-$ helm repo add ibmcase-charts https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/spring/docs/charts
+helm repo add ibmcase-charts https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/spring/docs/charts
 
 # Install Elasticsearch Chart
-$ helm upgrade --install elasticsearch \
+helm upgrade --install elasticsearch \
   --version 1.13.2 \
   --set fullnameOverride=catalog-elasticsearch \
   --set cluster.env.MINIMUM_MASTER_NODES="2" \
@@ -54,7 +54,7 @@ $ helm upgrade --install elasticsearch \
   stable/elasticsearch
 
 # Install MySQL Chart
-$ helm upgrade --install mysql \
+helm upgrade --install mysql \
   --version 0.10.2 \
   --set fullnameOverride=inventory-mysql \
   --set mysqlRootPassword=admin123 \
@@ -65,16 +65,16 @@ $ helm upgrade --install mysql \
   stable/mysql
 
 # Install Inventory Chart
-$ helm upgrade --install inventory --set mysql.existingSecret=inventory-mysql ibmcase-charts/inventory
+helm upgrade --install inventory --set mysql.existingSecret=inventory-mysql ibmcase-charts/inventory
 
 # Clone catalog repository:
-$ git clone -b spring --single-branch https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-catalog.git
+git clone -b spring --single-branch https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-catalog.git
 
 # Go to Chart Directory
-$ cd refarch-cloudnative-micro-catalog/chart/catalog
+cd refarch-cloudnative-micro-catalog/chart/catalog
 
 # Deploy Catalog to Kubernetes cluster
-$ helm upgrade --install catalog \
+helm upgrade --install catalog \
   --set service.type=NodePort \
   --set elasticsearch.host=catalog-elasticsearch-client \
   --set inventory.url=http://inventory-inventory:8080 \

@@ -67,7 +67,7 @@ jobs:
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
       # Start Catalog Container and Connect to local MySQL Service
-      - docker run --net=host --name catalog -e ELASTICSEARCH_URI="http://127.0.0.1:9200" -e INVENTORY_URL="http://127.0.0.1:8080" -p 8081:8081 -d "${IMAGE_NAME}:${TAG}"
+      - docker run --net=host --name catalog -p 8081:8081 -d "${IMAGE_NAME}:${TAG}"
       # Wait for the Catalog container to start accepting connections
       - sleep 25
       # Check that the Catalog container is running

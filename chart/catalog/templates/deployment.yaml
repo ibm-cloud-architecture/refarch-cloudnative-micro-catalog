@@ -22,6 +22,7 @@ spec:
         - containerPort: {{ .Values.service.internalPort }}
           protocol: TCP
         env:
+        {{- include "catalog.environmentvariables" . | indent 8 }}
         {{- include "catalog.elasticsearch.environmentvariables" . | indent 8 }}
         - name: INVENTORY_URL
           value: {{ template "catalog.inventory" . }}
