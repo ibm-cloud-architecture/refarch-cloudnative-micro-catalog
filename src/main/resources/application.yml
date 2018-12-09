@@ -1,20 +1,26 @@
+eureka:
+  client:
+    enabled: false
+    registerWithEureka: false
+  fetchRegistry: false
+
 # Server configuration
 server:
   context-path: /micro
-  port: 8081
+  port: ${SERVICE_PORT:8081}
 
 # Spring properties
 spring:
   application:
-     name: catalog-microservice
+    name: catalog
 
 # Elasticsearch
 elasticsearch:
-  url: http://127.0.0.1:9200
-  user:
-  password:
-  index: micro
-  doc_type: items
+  url: ${ES_URL:http://127.0.0.1:9200}
+  user: ${ES_USER}
+  password: ${ES_PASSWORD}
+  index: ${ES_INDEX:micro}
+  doc_type: ${ES_DOC_TYPE:items}
 
 inventoryService:
-  url: http://127.0.0.1:8080
+  url: ${INVENTORY_URL:http://127.0.0.1:8080}

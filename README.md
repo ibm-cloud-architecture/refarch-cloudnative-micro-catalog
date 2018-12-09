@@ -50,18 +50,18 @@ Here is an overview of the project's features:
     + [`helm`](https://docs.helm.sh/using_helm/#installing-helm)
 * Clone catalog repository:
 ```bash
-$ git clone -b spring --single-branch https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-catalog.git
-$ cd refarch-cloudnative-micro-catalog
+git clone -b spring --single-branch https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-catalog.git
+cd refarch-cloudnative-micro-catalog
 ```
 
 ## Deploy Catalog Application to Kubernetes Cluster
 In this section, we are going to deploy the Catalog Application, along with a MySQL service, to a Kubernetes cluster using Helm. To do so, follow the instructions below:
 ```bash
 # Add helm repos for Inventory and Elasticsearch Chart
-$ helm repo add ibmcase-charts https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/spring/docs/charts
+helm repo add ibmcase-charts https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/spring/docs/charts
 
 # Install Elasticsearch Chart
-$ helm upgrade --install elasticsearch \
+helm upgrade --install elasticsearch \
   --version 1.13.2 \
   --set fullnameOverride=catalog-elasticsearch \
   --set cluster.env.MINIMUM_MASTER_NODES="2" \
@@ -73,7 +73,7 @@ $ helm upgrade --install elasticsearch \
   stable/elasticsearch
 
 # Install MySQL Chart
-$ helm upgrade --install mysql \
+helm upgrade --install mysql \
   --version 0.10.2 \
   --set fullnameOverride=inventory-mysql \
   --set mysqlRootPassword=admin123 \
@@ -84,13 +84,13 @@ $ helm upgrade --install mysql \
   stable/mysql
 
 # Install Inventory Chart
-$ helm upgrade --install inventory --set mysql.existingSecret=inventory-mysql ibmcase-charts/inventory
+helm upgrade --install inventory --set mysql.existingSecret=inventory-mysql ibmcase-charts/inventory
 
 # Go to Chart Directory
-$ cd chart/catalog
+cd chart/catalog
 
 # Deploy Catalog to Kubernetes cluster
-$ helm upgrade --install catalog \
+helm upgrade --install catalog \
   --set service.type=NodePort \
   --set elasticsearch.host=catalog-elasticsearch-client \
   --set inventory.url=http://inventory-inventory:8080 \
@@ -101,7 +101,7 @@ The last command will give you instructions on how to access/test the Catalog ap
 
 To check and wait for the deployment status, you can run the following command:
 ```bash
-$ kubectl get deployments -w
+kubectl get deployments -w
 NAME                  DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
 catalog-catalog   1         1         1            1           10h
 ```
@@ -109,13 +109,13 @@ catalog-catalog   1         1         1            1           10h
 The `-w` flag is so that the command above not only retrieves the deployment but also listens for changes. If you a 1 under the `CURRENT` column, that means that the catalog app deployment is ready.
 
 ## Deploy Catalog Application on Docker
-You can also run the Catalog Application locally on Docker. Before we show you how to do so, you will need to have a running MySQL deployment running somewhere. 
+You can also run the Catalog Application locally on Docker. Before we show you how to do so, you will need to have a running MySQL deployment running somewhere.
 
 ### Deploy the MySQL Docker Container
 The easiest way to get MySQL running is via a Docker container. To do so, run the following commands:
 ```bash
 # Start a MySQL Container with a database user, a password, and create a new database
-$ docker run --name inventorymysql \
+docker run --name inventorymysql \
     -e MYSQL_ROOT_PASSWORD=admin123 \
     -e MYSQL_USER=dbuser \
     -e MYSQL_PASSWORD=password \
@@ -124,7 +124,7 @@ $ docker run --name inventorymysql \
     -d mysql:5.7.14
 
 # Get the MySQL Container's IP Address
-$ docker inspect inventorymysql | grep "IPAddress"
+docker inspect inventorymysql | grep "IPAddress"
             "SecondaryIPAddresses": null,
             "IPAddress": "172.17.0.2",
                     "IPAddress": "172.17.0.2",
@@ -135,9 +135,9 @@ Make sure to select the IP Address in the `IPAddress` field. You will use this I
 In order for Inventory to make use of the MySQL database, the database needs to be populated first. To do so, run the following commands:
 ```bash
 # Download MySQL static data script
-$ wget https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/master/scripts/mysql_data.sql
+wget https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/master/scripts/mysql_data.sql
 # Populate MySQL
-$ until mysql -h 127.0.0.1 -P 3306 -udbuser -ppassword <mysql_data.sql; do echo "waiting for mysql"; sleep 1; done; echo "Loaded data into database"
+until mysql -h 127.0.0.1 -P 3306 -udbuser -ppassword <mysql_data.sql; do echo "waiting for mysql"; sleep 1; done; echo "Loaded data into database"
 ```
 
 Note that we didn't use the IP address we obtained from the MySQL since it is only accessible to other Docker Containers. We used `127.0.0.1` localhost IP address instead since we mapped the 3306 port on the docker container to the 3306 port in localhost.
@@ -146,7 +146,7 @@ Note that we didn't use the IP address we obtained from the MySQL since it is on
 To deploy the Inventory container, run the following commands:
 ```bash
 # Start the Inventory Container
-$ docker run --name inventory \
+docker run --name inventory \
     -e MYSQL_HOST=${MYSQL_IP_ADDRESS} \
     -e MYSQL_PORT=3306 \
     -e MYSQL_USER=dbuser \
@@ -160,13 +160,13 @@ Where `${MYSQL_IP_ADDRESS}` is the IP address of the MySQL container, which is o
 
 If everything works successfully, you should be able to get some data when you run the following command:
 ```bash
-$ curl http://localhost:8080/micro/inventory
+curl http://localhost:8080/micro/inventory
 ```
 
 Now, get the Inventory Container's IP Address:
 ```bash
 # Get the Inventory Container's IP Address
-$ docker inspect inventory | grep "IPAddress"
+docker inspect inventory | grep "IPAddress"
             "SecondaryIPAddresses": null,
             "IPAddress": "172.17.0.3",
                     "IPAddress": "172.17.0.3",
@@ -177,14 +177,14 @@ Make sure to select the IP Address in the `IPAddress` field. You will use this I
 The easiest way to get Elasticsearch running is via a Docker container. To do so, run the following commands:
 ```bash
 # Start a Elasticsearch Container with a database user, a password, and create a new database
-$ docker run --name catalogelasticsearch \
+docker run --name catalogelasticsearch \
     -e "discovery.type=single-node" \
     -p 9200:9200 \
     -p 9300:9300 \
     -d docker.elastic.co/elasticsearch/elasticsearch:6.3.2
 
 # Get the Elasticsearch Container's IP Address
-$ docker inspect catalogelasticsearch | grep "IPAddress"
+docker inspect catalogelasticsearch | grep "IPAddress"
             "SecondaryIPAddresses": null,
             "IPAddress": "172.17.0.4",
                     "IPAddress": "172.17.0.4",
@@ -195,12 +195,11 @@ Make sure to select the IP Address in the `IPAddress` field. You will use this I
 To deploy the Catalog container, run the following commands:
 ```bash
 # Build the Docker Image
-$ docker build -t catalog .
+docker build -t catalog .
 
 # Start the Catalog Container
-$ docker run --name catalog \
-    -e ES_HOST=${ES_IP_ADDRESS} \
-    -e ES_PORT=9200 \
+docker run --name catalog \
+    -e ES_URL="http://${ES_IP_ADDRESS}:9200" \
     -e ES_USER=elastic \
     -e ES_PASSWORD=changeme \
     -e INVENTORY_URL=http://${INVENTORY_IP_ADDRESS}:8080 \
@@ -214,7 +213,7 @@ Where:
 
 If everything works successfully, you should be able to get some data when you run the following command:
 ```bash
-$ curl http://localhost:8081/micro/items
+curl http://localhost:8081/micro/items
 ```
 
 ## Run Catalog Service application on localhost
@@ -237,17 +236,17 @@ Once all the above is done, we can run the Spring Boot Catalog application local
 
 2. Build the application:
 ```bash
-$ ./gradlew build -x test
+./gradlew build -x test
 ```
 
 3. Run the application on localhost:
 ```bash
-$ java -jar build/libs/micro-catalog-0.0.1.jar
+java -jar build/libs/micro-catalog-0.0.1.jar
 ```
 
 4. Validate. You should get a list of all catalog items:
 ```bash
-$ curl http://localhost:8081/micro/items
+curl http://localhost:8081/micro/items
 ```
 
 That's it, you have successfully deployed and tested the Catalog microservice.
@@ -257,7 +256,7 @@ That's it, you have successfully deployed and tested the Catalog microservice.
 The Spring Boot applications can be deployed on WebSphere Liberty as well. In this case, the embedded server i.e. the application server packaged up in the JAR file will be Liberty. For instructions on how to deploy the Catalog application optimized for Docker on Open Liberty, which is the open source foundation for WebSphere Liberty, follow the instructions [here](OpenLiberty.MD)
 
 ## Optional: Setup CI/CD Pipeline
-If you would like to setup an automated Jenkins CI/CD Pipeline for this repository, we provided a sample [Jenkinsfile](Jenkinsfile), which uses the [Jenkins Pipeline](https://jenkins.io/doc/book/pipeline/) syntax of the [Jenkins Kubernetes Plugin](https://github.com/jenkinsci/kubernetes-plugin) to automatically create and run Jenkis Pipelines from your Kubernetes environment. 
+If you would like to setup an automated Jenkins CI/CD Pipeline for this repository, we provided a sample [Jenkinsfile](Jenkinsfile), which uses the [Jenkins Pipeline](https://jenkins.io/doc/book/pipeline/) syntax of the [Jenkins Kubernetes Plugin](https://github.com/jenkinsci/kubernetes-plugin) to automatically create and run Jenkis Pipelines from your Kubernetes environment.
 
 To learn how to use this sample pipeline, follow the guide below and enter the corresponding values for your environment and for this repository:
 * https://github.com/ibm-cloud-architecture/refarch-cloudnative-devops-kubernetes

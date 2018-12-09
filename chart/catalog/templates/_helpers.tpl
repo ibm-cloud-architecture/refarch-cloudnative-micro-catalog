@@ -16,6 +16,12 @@ release: {{ .Release.Name | quote }}
 chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{- end }}
 
+{{/* Catalog Environment Variables */}}
+{{- define "catalog.environmentvariables" }}
+- name: SERVICE_PORT
+  value: {{ .Values.service.internalPort | quote }}
+{{- end }}
+
 {{/* Catalog Elasticsearch Init Container Template */}}
 {{- define "catalog.elasticsearch.initcontainer" }}
 {{- if not (or .Values.global.istio.enabled .Values.istio.enabled) }}
@@ -39,6 +45,8 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 
 {{/* Catalog Elasticsearch Environment Variables */}}
 {{- define "catalog.elasticsearch.environmentvariables" }}
+- name: ES_URL
+  value: "${ES_PROTOCOL}://${ES_HOST}${ES_PORT}"
 - name: ES_HOST
   value: {{ .Values.elasticsearch.host | quote }}
 - name: ES_PROTOCOL
