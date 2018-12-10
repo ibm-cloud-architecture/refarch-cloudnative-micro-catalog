@@ -91,7 +91,7 @@ jobs:
       # Install MySQL Chart
       - helm upgrade --install mysql --version 0.10.2 --set fullnameOverride=inventory-mysql,mysqlRootPassword=admin123,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb,persistence.enabled=false stable/mysql
       # Install Inventory Chart
-      - helm upgrade --install inventory --set mysql.existingSecret=inventory-mysql ibmcase-charts/inventory
+      - helm upgrade --install inventory --version 0.6.0 --set mysql.existingSecret=inventory-mysql ibmcase-charts/inventory
       script:
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
