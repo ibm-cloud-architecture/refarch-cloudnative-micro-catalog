@@ -17,8 +17,8 @@ spring:
 # Elasticsearch
 elasticsearch:
   url: ${ES_URL:http://127.0.0.1:9200}
-  user: ${ES_USER}
-  password: ${ES_PASSWORD}
+  user: ${ES_USER:}
+  password: ${ES_PASSWORD:}
   index: ${ES_INDEX:micro}
   doc_type: ${ES_DOC_TYPE:items}
 

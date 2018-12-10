@@ -46,7 +46,7 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{/* Catalog Elasticsearch Environment Variables */}}
 {{- define "catalog.elasticsearch.environmentvariables" }}
 - name: ES_URL
-  value: "${ES_PROTOCOL}://${ES_HOST}${ES_PORT}"
+  value: "${ES_PROTOCOL}://${ES_HOST}:${ES_PORT}"
 - name: ES_HOST
   value: {{ .Values.elasticsearch.host | quote }}
 - name: ES_PROTOCOL
