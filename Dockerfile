@@ -34,5 +34,5 @@ RUN mv ./micro-catalog-0.0.1.jar app.jar
 COPY startup.sh startup.sh
 COPY scripts scripts
 
-EXPOSE 8081
+EXPOSE 8081 8091
 ENTRYPOINT ["./startup.sh"]
