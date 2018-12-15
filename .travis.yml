@@ -37,7 +37,7 @@ jobs:
       # Get script with inventory data
       - wget https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/spring/scripts/mysql_data.sql
       # Wait for MySQL to start, then load it with inventory data
-      - until mysql -uroot <./scripts/mysql_data.sql; do echo "waiting for mysql"; sleep 1; done; echo "Loaded data into database"
+      - until mysql -uroot <mysql_data.sql; do echo "waiting for mysql"; sleep 1; done; echo "Loaded data into database"
       # Start inventory container
       - docker run --net=host --name ${INVENTORY_RELEASE_NAME} -d -p ${INVENTORY_SERVICE_PORT}:${INVENTORY_SERVICE_PORT} -p ${INVENTORY_MANAGEMENT_PORT}:${INVENTORY_MANAGEMENT_PORT} ${INVENTORY_IMAGE_NAME}
       # Check that the container is running
@@ -68,7 +68,7 @@ jobs:
       # Get script with inventory data
       - wget https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/spring/scripts/mysql_data.sql
       # Wait for MySQL to start, then load it with inventory data
-      - until mysql -uroot <./scripts/mysql_data.sql; do echo "waiting for mysql"; sleep 1; done; echo "Loaded data into database"
+      - until mysql -uroot <mysql_data.sql; do echo "waiting for mysql"; sleep 1; done; echo "Loaded data into database"
       # Start inventory container
       - docker run --net=host --name ${INVENTORY_RELEASE_NAME} -d -p ${INVENTORY_SERVICE_PORT}:${INVENTORY_SERVICE_PORT} -p ${INVENTORY_MANAGEMENT_PORT}:${INVENTORY_MANAGEMENT_PORT} ${INVENTORY_IMAGE_NAME}
       # Check that the container is running
