@@ -22,7 +22,9 @@ echo -n "Waiting for service to be ready"
 
 until [ -n "$HEALTHY" ] && [ "${HEALTHY}" == '{"status":"UP"}' ]; do
 	HEALTHY=$(is_healthy);
-	echo -n .;
+	#echo -n .;
+	echo "${HEALTHY}";
+	curl ${HEALTH_URL};
 	sleep 1;
 done
 
