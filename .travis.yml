@@ -55,6 +55,8 @@ jobs:
       - java -jar build/libs/micro-${RELEASE_NAME}-0.0.1.jar &
       # Let the application start
       - bash scripts/health_check.sh
+      # Wait a few seconds until the catalog is loaded
+      - sleep 10
       # Run API Test
       - bash scripts/api_tests.sh 127.0.0.1 ${SERVICE_PORT}
     - stage: docker build, deploy, and test
@@ -86,10 +88,12 @@ jobs:
       - docker run --net=host --name ${RELEASE_NAME} -d -p ${SERVICE_PORT}:${SERVICE_PORT} -p ${MANAGEMENT_PORT}:${MANAGEMENT_PORT} "${IMAGE_NAME}:${TAG}"
       # Check that the container is running
       - docker ps
-      # Check logs to see if it started properly
-      - docker logs -f ${RELEASE_NAME} &
       # Let the application start
       - bash scripts/health_check.sh
+      # Wait a few seconds until the catalog is loaded
+      - sleep 10
+      # Check logs to see if it started properly
+      - docker logs -f ${RELEASE_NAME} &
       # Run API Test
       - bash scripts/api_tests.sh 127.0.0.1 ${SERVICE_PORT}
     - stage: kubernetes build, deploy, and test
@@ -142,5 +146,7 @@ jobs:
       - sleep 3
       # Let the application start
       - bash scripts/health_check.sh
+      # Wait a few seconds until the catalog is loaded
+      - sleep 10
       # Run API Test
       - bash scripts/api_tests.sh
