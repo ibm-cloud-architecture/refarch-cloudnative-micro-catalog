@@ -123,7 +123,7 @@ jobs:
       # Wait for MySQL to start
       - kubectl rollout status deployment/${INVENTORY_RELEASE_NAME}-mysql
       # Wait for Inventory to start
-      - kubectl rollout status deployment/${INVENTORY_RELEASE_NAME}
+      - kubectl rollout status deployment/${INVENTORY_RELEASE_NAME}-${INVENTORY_CHART_NAME}
       script:
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
@@ -137,8 +137,7 @@ jobs:
       # Get Deployment Name
       - DEPLOYMENT="deployment/${RELEASE_NAME}-${CHART_NAME}"
       # Wait for deployment to be ready
-      #- kubectl logs -f ${DEPLOYMENT} &
-      - kubectl get pods -w &
+      - kubectl logs -f ${DEPLOYMENT} &
       - kubectl rollout status ${DEPLOYMENT}
       # Port Forwarding
       - kubectl port-forward ${DEPLOYMENT} ${SERVICE_PORT} ${MANAGEMENT_PORT} &
