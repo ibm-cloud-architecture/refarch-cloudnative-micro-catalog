@@ -119,7 +119,7 @@ jobs:
       # Install Inventory Chart
       - helm upgrade --install ${INVENTORY_RELEASE_NAME} --version 0.6.0 --set mysql.existingSecret=${INVENTORY_RELEASE_NAME}-mysql ibmcase-charts/inventory
       # Wait for Elasticsearch to start
-      - kubectl rollout status statefulset/${RELEASE_NAME}-elasticsearch
+      - kubectl rollout status deployment/${RELEASE_NAME}-elasticsearch-client
       # Wait for MySQL to start
       - kubectl rollout status deployment/${INVENTORY_RELEASE_NAME}-mysql
       # Wait for Inventory to start
