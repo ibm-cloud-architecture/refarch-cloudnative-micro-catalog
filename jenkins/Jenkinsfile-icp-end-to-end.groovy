@@ -32,9 +32,8 @@ def managementPort = env.MANAGEMENT_PORT ?: "8091"
 def elasticSearchProtocol = env.ES_PROTOCOL ?: "http"
 def elasticSearchHost = env.ES_HOST
 def elasticSearchPort = env.ES_PORT ?: "9200"
-def elasticSearchCredsId = env.ES_CREDENTIALS ?: "catalog-es-id"
 
-def inventoryURL = env.INVENTORY_URL ?: "catalog-es-id"
+def inventoryURL = env.INVENTORY_URL ?: "http://inventory-inventory:8080"
 
 /*
   Optional Pod Environment Variables
