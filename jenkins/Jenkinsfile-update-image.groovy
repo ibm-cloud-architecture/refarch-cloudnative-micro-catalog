@@ -29,10 +29,12 @@ def managementPort = env.MANAGEMENT_PORT ?: "8091"
 //     - These variables get picked up by the Java application automatically
 //     - There were issues with Jenkins credentials plugin interfering with setting up the password directly
 
+def elasticSearchProtocol = env.ES_PROTOCOL ?: "http"
 def elasticSearchHost = env.ES_HOST
-def elasticSearchPort = env.ES_PORT ?: "3306"
-def elasticSearchDatabase = env.ES_DATABASE ?: "catalogdb"
-def elasticSearchCredsId = env.ES_CREDENTIALS ?: "catalog-es-id"
+def elasticSearchPort = env.ES_PORT ?: "9200"
+
+// URL for external inventory service
+def inventoryURL = env.INVENTORY_URL ?: "http://inventory-inventory:8080"
 
 /*
   Optional Pod Environment Variables
@@ -49,9 +51,10 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, names
         envVar(key: 'MICROSERVICE_NAME', value: microServiceName),
         envVar(key: 'MICROSERVICE_PORT', value: servicePort),
         envVar(key: 'MANAGEMENT_PORT', value: managementPort),
+        envVar(key: 'ES_PROTOCOL', value: elasticSearchProtocol),
         envVar(key: 'ES_HOST', value: elasticSearchHost),
         envVar(key: 'ES_PORT', value: elasticSearchPort),
-        envVar(key: 'ES_DATABASE', value: elasticSearchDatabase),
+        envVar(key: 'INVENTORY_URL', value: inventoryURL),
         envVar(key: 'HELM_HOME', value: helmHome)
     ],
     volumes: [
@@ -79,9 +82,8 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, names
                 sh """
                 #!/bin/bash
 
-                JAVA_OPTS="-Dspring.datasource.url=jdbc:es://${ES_HOST}:${ES_PORT}/${ES_DATABASE}"
-                JAVA_OPTS="\${JAVA_OPTS} -Dspring.datasource.port=${ES_PORT}"
-                JAVA_OPTS="\${JAVA_OPTS} -Dserver.port=${MICROSERVICE_PORT}"
+                JAVA_OPTS="-Delasticsearch.url=${ES_PROTOCOL}://${ES_HOST}:${ES_PORT}"
+                JAVA_OPTS="\${JAVA_OPTS} -DinventoryService.url=${INVENTORY_URL}"
 
                 java \${JAVA_OPTS} -jar build/libs/micro-catalog-0.0.1.jar &
 
@@ -139,11 +141,11 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, names
                     -p ${MICROSERVICE_PORT}:${MICROSERVICE_PORT} \
                     -p ${MANAGEMENT_PORT}:${MANAGEMENT_PORT} \
                     -e SERVICE_PORT=${MICROSERVICE_PORT} \
-                    -e ES_HOST=${ES_HOST} \
-                    -e ES_PORT=${ES_PORT} \
-                    -e ES_USER=${ES_USER} \
-                    -e ES_PASSWORD=${ES_PASSWORD} \
-                    -e ES_DATABASE=${ES_DATABASE} \${IMAGE}
+                    -e ES_URL="${ES_PROTOCOL}://${ES_HOST}:${ES_PORT}" \
+                    -e ES_USER="${ES_USER}" \
+                    -e ES_PASSWORD="${ES_PASSWORD}" \
+                    -e INVENTORY_URL=${INVENTORY_URL} \
+                    \${IMAGE}
                 set -x
 
                 # Check that application started successfully

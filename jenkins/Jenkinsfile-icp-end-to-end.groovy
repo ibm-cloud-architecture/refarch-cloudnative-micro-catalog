@@ -33,6 +33,7 @@ def elasticSearchProtocol = env.ES_PROTOCOL ?: "http"
 def elasticSearchHost = env.ES_HOST
 def elasticSearchPort = env.ES_PORT ?: "9200"
 
+// URL for external inventory service
 def inventoryURL = env.INVENTORY_URL ?: "http://inventory-inventory:8080"
 
 /*

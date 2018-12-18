@@ -19,7 +19,6 @@ def serviceAccount = env.SERVICE_ACCOUNT ?: "jenkins"
 def namespace = env.NAMESPACE ?: "default"
 def registry = env.REGISTRY ?: "docker.io"
 def imageName = env.IMAGE_NAME ?: "ibmcase/bluecompute-catalog"
-def imageTag = env.IMAGE_TAG ?: "latest"
 def serviceLabels = env.SERVICE_LABELS ?: "app=catalog,tier=backend" //,version=v1"
 def microServiceName = env.MICROSERVICE_NAME ?: "catalog"
 def servicePort = env.MICROSERVICE_PORT ?: "8081"
@@ -30,10 +29,12 @@ def managementPort = env.MANAGEMENT_PORT ?: "8091"
 //     - These variables get picked up by the Java application automatically
 //     - There were issues with Jenkins credentials plugin interfering with setting up the password directly
 
+def elasticSearchProtocol = env.ES_PROTOCOL ?: "http"
 def elasticSearchHost = env.ES_HOST
-def elasticSearchPort = env.ES_PORT ?: "3306"
-def elasticSearchDatabase = env.ES_DATABASE ?: "catalogdb"
-def elasticSearchCredsId = env.ES_CREDENTIALS ?: "catalog-es-id"
+def elasticSearchPort = env.ES_PORT ?: "9200"
+
+// URL for external inventory service
+def inventoryURL = env.INVENTORY_URL ?: "http://inventory-inventory:8080"
 
 /*
   Optional Pod Environment Variables
@@ -46,17 +47,18 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, names
         envVar(key: 'NAMESPACE', value: namespace),
         envVar(key: 'REGISTRY', value: registry),
         envVar(key: 'IMAGE_NAME', value: imageName),
-        envVar(key: 'IMAGE_TAG', value: imageTag),
         envVar(key: 'SERVICE_LABELS', value: serviceLabels),
         envVar(key: 'MICROSERVICE_NAME', value: microServiceName),
         envVar(key: 'MICROSERVICE_PORT', value: servicePort),
         envVar(key: 'MANAGEMENT_PORT', value: managementPort),
+        envVar(key: 'ES_PROTOCOL', value: elasticSearchProtocol),
         envVar(key: 'ES_HOST', value: elasticSearchHost),
         envVar(key: 'ES_PORT', value: elasticSearchPort),
-        envVar(key: 'ES_DATABASE', value: elasticSearchDatabase),
+        envVar(key: 'INVENTORY_URL', value: inventoryURL),
         envVar(key: 'HELM_HOME', value: helmHome)
     ],
     volumes: [
+        hostPathVolume(mountPath: '/home/gradle/.gradle', hostPath: '/tmp/jenkins/.gradle'),
         hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')
     ],
     containers: [
@@ -95,8 +97,8 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, names
 
                 # Helm Parameters
                 if [ "${DEPLOY_NEW_VERSION}" == "true" ]; then
-                    NAME="${MICROSERVICE_NAME}-v${IMAGE_TAG}"
-                    VERSION_LABEL="--set labels.version=v${IMAGE_TAG}"
+                    NAME="${MICROSERVICE_NAME}-v${env.BUILD_NUMBER}"
+                    VERSION_LABEL="--set labels.version=v${env.BUILD_NUMBER}"
                 else
                     NAME="${MICROSERVICE_NAME}"
                 fi
@@ -107,13 +109,14 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, names
                 helm upgrade --install \${NAME} --namespace ${NAMESPACE} \${VERSION_LABEL} \
                     --set fullnameOverride=\${NAME} \
                     --set image.repository=\${IMAGE} \
-                    --set image.tag=${IMAGE_TAG} \
+                    --set image.tag=${env.BUILD_NUMBER} \
                     --set service.externalPort=${MICROSERVICE_PORT} \
-                    --set refarch-cloudnative-micro-catalog0.host=${ES_HOST} \
-                    --set refarch-cloudnative-micro-catalog0.port=${ES_PORT} \
-                    --set refarch-cloudnative-micro-catalog0.database=${ES_DATABASE} \
-                    --set refarch-cloudnative-micro-catalog0.user=${ES_USER} \
-                    --set refarch-cloudnative-micro-catalog0.password=${ES_PASSWORD} \
+                    --set elasticsearch.protocol=${ES_PROTOCOL} \
+                    --set elasticsearch.host=${ES_HOST} \
+                    --set elasticsearch.port=${ES_PORT} \
+                    --set elasticsearch.username=${ES_USER} \
+                    --set elasticsearch.password=${ES_PASSWORD} \
+                    --set inventory.url=${INVENTORY_URL} \
                     chart/${MICROSERVICE_NAME} --wait --tls
                 set -x
                 """
