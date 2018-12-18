@@ -39,6 +39,7 @@ def inventoryURL = env.INVENTORY_URL ?: "http://inventory-inventory:8080"
 /*
   Optional Pod Environment Variables
  */
+def sleepTime = env.SLEEP_TIME ?: "10"
 def helmHome = env.HELM_HOME ?: env.JENKINS_HOME + "/.helm"
 
 podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, namespace: namespace, envVars: [
@@ -55,6 +56,7 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, names
         envVar(key: 'ES_HOST', value: elasticSearchHost),
         envVar(key: 'ES_PORT', value: elasticSearchPort),
         envVar(key: 'INVENTORY_URL', value: inventoryURL),
+        envVar(key: 'SLEEP_TIME', value: sleepTime),
         envVar(key: 'HELM_HOME', value: helmHome)
     ],
     volumes: [
@@ -91,6 +93,7 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, names
 
                 # Let the application start
                 bash scripts/health_check.sh "http://127.0.0.1:${MANAGEMENT_PORT}"
+                sleep ${SLEEP_TIME}
 
                 # Run tests
                 set +x
@@ -160,6 +163,7 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, names
 
                 # Let the application start
                 bash scripts/health_check.sh "http://\${CONTAINER_IP}:${MANAGEMENT_PORT}"
+                sleep ${SLEEP_TIME}
 
                 # Run tests
                 bash scripts/api_tests.sh \${CONTAINER_IP} ${MICROSERVICE_PORT}

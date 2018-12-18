@@ -19,6 +19,7 @@ def serviceAccount = env.SERVICE_ACCOUNT ?: "jenkins"
 def namespace = env.NAMESPACE ?: "default"
 def registry = env.REGISTRY ?: "docker.io"
 def imageName = env.IMAGE_NAME ?: "ibmcase/bluecompute-catalog"
+def imageTag = env.IMAGE_TAG ?: "latest"
 def serviceLabels = env.SERVICE_LABELS ?: "app=catalog,tier=backend" //,version=v1"
 def microServiceName = env.MICROSERVICE_NAME ?: "catalog"
 def servicePort = env.MICROSERVICE_PORT ?: "8081"
@@ -39,6 +40,7 @@ def inventoryURL = env.INVENTORY_URL ?: "http://inventory-inventory:8080"
 /*
   Optional Pod Environment Variables
  */
+def sleepTime = env.SLEEP_TIME ?: "10"
 def helmHome = env.HELM_HOME ?: env.JENKINS_HOME + "/.helm"
 
 podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, namespace: namespace, envVars: [
@@ -47,6 +49,7 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, names
         envVar(key: 'NAMESPACE', value: namespace),
         envVar(key: 'REGISTRY', value: registry),
         envVar(key: 'IMAGE_NAME', value: imageName),
+        envVar(key: 'IMAGE_TAG', value: imageTag),
         envVar(key: 'SERVICE_LABELS', value: serviceLabels),
         envVar(key: 'MICROSERVICE_NAME', value: microServiceName),
         envVar(key: 'MICROSERVICE_PORT', value: servicePort),
@@ -55,11 +58,8 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, names
         envVar(key: 'ES_HOST', value: elasticSearchHost),
         envVar(key: 'ES_PORT', value: elasticSearchPort),
         envVar(key: 'INVENTORY_URL', value: inventoryURL),
+        envVar(key: 'SLEEP_TIME', value: sleepTime),
         envVar(key: 'HELM_HOME', value: helmHome)
-    ],
-    volumes: [
-        hostPathVolume(mountPath: '/home/gradle/.gradle', hostPath: '/tmp/jenkins/.gradle'),
-        hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')
     ],
     containers: [
         containerTemplate(name: 'kubernetes', image: 'ibmcase/jenkins-slave-utils:latest', ttyEnabled: true, command: 'cat')
@@ -97,8 +97,8 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, names
 
                 # Helm Parameters
                 if [ "${DEPLOY_NEW_VERSION}" == "true" ]; then
-                    NAME="${MICROSERVICE_NAME}-v${env.BUILD_NUMBER}"
-                    VERSION_LABEL="--set labels.version=v${env.BUILD_NUMBER}"
+                    NAME="${MICROSERVICE_NAME}-v${IMAGE_TAG}"
+                    VERSION_LABEL="--set labels.version=v${IMAGE_TAG}"
                 else
                     NAME="${MICROSERVICE_NAME}"
                 fi
@@ -109,7 +109,7 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, names
                 helm upgrade --install \${NAME} --namespace ${NAMESPACE} \${VERSION_LABEL} \
                     --set fullnameOverride=\${NAME} \
                     --set image.repository=\${IMAGE} \
-                    --set image.tag=${env.BUILD_NUMBER} \
+                    --set image.tag=${IMAGE_TAG} \
                     --set service.externalPort=${MICROSERVICE_PORT} \
                     --set elasticsearch.protocol=${ES_PROTOCOL} \
                     --set elasticsearch.host=${ES_HOST} \
@@ -145,6 +145,7 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, names
 
                 # Let the application start
                 bash scripts/health_check.sh "http://127.0.0.1:${MANAGEMENT_PORT}"
+                sleep ${SLEEP_TIME}
 
                 # Run tests
                 bash scripts/api_tests.sh 127.0.0.1 ${MICROSERVICE_PORT}
