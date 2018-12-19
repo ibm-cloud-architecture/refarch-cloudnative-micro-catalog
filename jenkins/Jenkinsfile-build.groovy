@@ -95,9 +95,7 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, names
                 sleep ${SLEEP_TIME}
 
                 # Run tests
-                set +x
                 bash scripts/api_tests.sh 127.0.0.1 ${MICROSERVICE_PORT}
-                set -x;
 
                 # Kill process
                 kill \${PID}
