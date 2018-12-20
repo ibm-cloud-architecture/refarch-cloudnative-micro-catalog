@@ -15,7 +15,7 @@ spec:
       {{- include "catalog.elasticsearch.initcontainer" . | indent 6 }}
       {{- include "catalog.inventory.initcontainer" . | indent 6 }}
       containers:
-      - name: catalog
+      - name: {{ .Chart.Name | quote }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: "{{ .Values.image.pullPolicy }}"
         ports:
