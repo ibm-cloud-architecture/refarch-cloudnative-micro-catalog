@@ -15,12 +15,26 @@ spec:
       {{- include "catalog.elasticsearch.initcontainer" . | indent 6 }}
       {{- include "catalog.inventory.initcontainer" . | indent 6 }}
       containers:
-      - name: catalog
+      - name: {{ .Chart.Name | quote }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: "{{ .Values.image.pullPolicy }}"
         ports:
         - containerPort: {{ .Values.service.internalPort }}
           protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.service.managementPort }}
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          failureThreshold: 6
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.service.managementPort }}
+          initialDelaySeconds: 35
+          periodSeconds: 20
+          failureThreshold: 6
         env:
         {{- include "catalog.environmentvariables" . | indent 8 }}
         {{- include "catalog.elasticsearch.environmentvariables" . | indent 8 }}

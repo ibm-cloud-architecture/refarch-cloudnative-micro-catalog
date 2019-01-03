@@ -4,9 +4,17 @@ jdk:
   - openjdk8
 env:
   global:
+    # Catalog
     - IMAGE_NAME=bluecompute-catalog
     - RELEASE_NAME=catalog
     - TAG=travis-latest
+    - SERVICE_PORT=8081
+    - MANAGEMENT_PORT=8091
+    # Inventory
+    - INVENTORY_IMAGE_NAME=ibmcase/bluecompute-inventory:0.6.0
+    - INVENTORY_SERVICE_PORT=8080
+    - INVENTORY_MANAGEMENT_PORT=8090
+    - INVENTORY_RELEASE_NAME=inventory
 stages:
   - local build and test
   - docker build, deploy, and test
@@ -28,23 +36,29 @@ jobs:
       before_script:
       # Get script with inventory data
       - wget https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/spring/scripts/mysql_data.sql
-      # Wait for MySQL to start, then load it with catalog data
-      - until mysql -h 127.0.0.1 -P 3306 -uroot <mysql_data.sql; do echo "waiting for mysql"; sleep 1; done; echo "Loaded data into database"
+      # Wait for MySQL to start, then load it with inventory data
+      - until mysql -uroot <mysql_data.sql; do echo "waiting for mysql"; sleep 1; done; echo "Loaded data into database"
       # Start inventory container
-      - docker run --net=host --name inventory -d -p 8080:8080 -e MYSQL_URI="mysql://root@127.0.0.1:3306/inventorydb" ibmcase/bluecompute-inventory:0.5.0
-      # Wait for elasticsearch and inventory to start
-      - sleep 25
+      - docker run --net=host --name ${INVENTORY_RELEASE_NAME} -d -p ${INVENTORY_SERVICE_PORT}:${INVENTORY_SERVICE_PORT} -p ${INVENTORY_MANAGEMENT_PORT}:${INVENTORY_MANAGEMENT_PORT} ${INVENTORY_IMAGE_NAME}
+      # Check that the container is running
+      - docker ps
+      # Check logs to see if it started properly
+      - docker logs -f ${INVENTORY_RELEASE_NAME} &
+      # Let the application start
+      - bash scripts/health_check.sh http://127.0.0.1:${INVENTORY_MANAGEMENT_PORT}
       # Test Inventory
-      - curl http://127.0.0.1:8080/micro/inventory
+      - curl http://127.0.0.1:${INVENTORY_SERVICE_PORT}/micro/inventory
       script:
       # Gradle Build
-      - ./gradlew build -x test
+      - ./gradlew build
       # Start Application
-      - java -jar build/libs/micro-catalog-0.0.1.jar &
-      # Wait for the Inventory container to start accepting connections
-      - sleep 25
-      # Run Catalog API Test
-      - bash scripts/api_tests.sh 127.0.0.1 8081
+      - java -jar build/libs/micro-${RELEASE_NAME}-0.0.1.jar &
+      # Let the application start
+      - bash scripts/health_check.sh
+      # Wait a few seconds until the catalog is loaded
+      - sleep 10
+      # Run API Test
+      - bash scripts/api_tests.sh 127.0.0.1 ${SERVICE_PORT}
     - stage: docker build, deploy, and test
       services:
       - elasticsearch
@@ -55,63 +69,84 @@ jobs:
       before_script:
       # Get script with inventory data
       - wget https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/spring/scripts/mysql_data.sql
-      # Wait for MySQL to start, then load it with catalog data
-      - until mysql -h 127.0.0.1 -P 3306 -uroot <mysql_data.sql; do echo "waiting for mysql"; sleep 1; done; echo "Loaded data into database"
+      # Wait for MySQL to start, then load it with inventory data
+      - until mysql -uroot <mysql_data.sql; do echo "waiting for mysql"; sleep 1; done; echo "Loaded data into database"
       # Start inventory container
-      - docker run --net=host --name inventory -d -p 8080:8080 ibmcase/bluecompute-inventory:0.6.0
-      # Wait for elasticsearch and inventory to start
-      - sleep 25
+      - docker run --net=host --name ${INVENTORY_RELEASE_NAME} -d -p ${INVENTORY_SERVICE_PORT}:${INVENTORY_SERVICE_PORT} -p ${INVENTORY_MANAGEMENT_PORT}:${INVENTORY_MANAGEMENT_PORT} ${INVENTORY_IMAGE_NAME}
+      # Check that the container is running
+      - docker ps
+      # Check logs to see if it started properly
+      - docker logs -f ${INVENTORY_RELEASE_NAME} &
+      # Let the application start
+      - bash scripts/health_check.sh http://127.0.0.1:${INVENTORY_MANAGEMENT_PORT}
       # Test Inventory
-      - curl http://127.0.0.1:8080/micro/inventory
+      - curl http://127.0.0.1:${INVENTORY_SERVICE_PORT}/micro/inventory
       script:
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
-      # Start Catalog Container and Connect to local MySQL Service
-      - docker run --net=host --name catalog -p 8081:8081 -d "${IMAGE_NAME}:${TAG}"
-      # Wait for the Catalog container to start accepting connections
-      - sleep 25
-      # Check that the Catalog container is running
+      # Start Container and Connect to local Elasticsearch Service
+      - docker run --net=host --name ${RELEASE_NAME} -d -p ${SERVICE_PORT}:${SERVICE_PORT} -p ${MANAGEMENT_PORT}:${MANAGEMENT_PORT} "${IMAGE_NAME}:${TAG}"
+      # Check that the container is running
       - docker ps
+      # Let the application start
+      - bash scripts/health_check.sh
+      # Wait a few seconds until the catalog is loaded
+      - sleep 10
       # Check logs to see if it started properly
-      - docker logs catalog
-      # Run Catalog API Test
-      - bash scripts/api_tests.sh 127.0.0.1 8081
+      - docker logs -f ${RELEASE_NAME} &
+      # Run API Test
+      - bash scripts/api_tests.sh 127.0.0.1 ${SERVICE_PORT}
     - stage: kubernetes build, deploy, and test
       services:
       - docker
       env:
       - CHANGE_MINIKUBE_NONE_USER=true
+      - CHART_NAME=catalog
+      - INVENTORY_CHART_NAME=inventory
+      - MYSQL_ROOT_PASSWORD=admin123
+      - MYSQL_USER=dbuser
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=inventorydb
       install:
         - true
       before_script:
       # Install nsenter, which is needed for minikube to work
       - bash scripts/install_minikube_and_helm.sh
       # Install Elasticsearch Chart
-      - helm upgrade --install elasticsearch --version 1.13.2 --set fullnameOverride=catalog-elasticsearch,cluster.env.MINIMUM_MASTER_NODES="2",client.replicas=1,master.replicas=2,master.persistence.enabled=false,data.replicas=1,data.persistence.enabled=false stable/elasticsearch
-      # Install MySQL Chart
-      - helm upgrade --install mysql --version 0.10.2 --set fullnameOverride=inventory-mysql,mysqlRootPassword=admin123,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb,persistence.enabled=false stable/mysql
+      - helm upgrade --install elasticsearch --version 1.13.2 --set fullnameOverride=${RELEASE_NAME}-elasticsearch,cluster.env.MINIMUM_MASTER_NODES="2",client.replicas=1,master.replicas=2,master.persistence.enabled=false,data.replicas=1,data.persistence.enabled=false stable/elasticsearch
+      # Install MySQL
+      - helm upgrade --install mysql --version 0.10.2 --set fullnameOverride=${INVENTORY_RELEASE_NAME}-mysql,mysqlRootPassword=${MYSQL_ROOT_PASSWORD},mysqlUser=${MYSQL_USER},mysqlPassword=${MYSQL_PASSWORD},mysqlDatabase=${MYSQL_DATABASE},persistence.enabled=false stable/mysql
       # Install Inventory Chart
-      - helm upgrade --install inventory --version 0.6.0 --set mysql.existingSecret=inventory-mysql ibmcase-charts/inventory
+      - helm upgrade --install ${INVENTORY_RELEASE_NAME} --version 0.6.0 --set mysql.existingSecret=${INVENTORY_RELEASE_NAME}-mysql ibmcase-charts/inventory
+      # Wait for Elasticsearch to start
+      - kubectl rollout status deployment/${RELEASE_NAME}-elasticsearch-client
+      # Wait for MySQL to start
+      - kubectl rollout status deployment/${INVENTORY_RELEASE_NAME}-mysql
+      # Wait for Inventory to start
+      - kubectl rollout status deployment/${INVENTORY_RELEASE_NAME}-${INVENTORY_CHART_NAME}
       script:
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
-      # Download Catalog chart dependencies (MySQL)
-      - cd chart/catalog; helm dependency update; cd ../..
       # helm lint
-      - helm lint chart/catalog
+      - helm lint chart/${CHART_NAME}
       # helm package
-      - helm package chart/catalog
-      # helm install Catalog from packaged chart. Use pullPolicy=Never so it uses local docker image
-      - CHART_VERSION="$(cat chart/catalog/Chart.yaml | grep version | awk '{print $2}')"
-      - helm upgrade --install catalog --set service.type=NodePort,image.repository="${IMAGE_NAME}",image.tag="${TAG}",image.pullPolicy=Never,elasticsearch.host=catalog-elasticsearch-client,inventory.url=http://inventory-inventory:8080 catalog-${CHART_VERSION}.tgz
-      # Wait for Catalog to be ready
-      - kubectl get deployments ${RELEASE_NAME}-catalog -o yaml
-      - READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}')
-      - echo $READY
-      - until [ -n "$READY" ] && [ ${READY} -ge 1 ]; do READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}'); kubectl get deployments -o wide; echo "Waiting for catalog to be ready"; sleep 10; done
-      # Wait for Catalog deployment to start accepting connections
-      - sleep 35
-      # Run Catalog API Test
-      - MINIKUBE_IP=$(minikube ip)
-      - NODE_PORT=$(kubectl get service ${RELEASE_NAME}-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
-      - bash scripts/api_tests.sh $MINIKUBE_IP $NODE_PORT
+      - helm package chart/${CHART_NAME}
+      # helm install from packaged chart. Use pullPolicy=Never so it uses local docker image
+      - CHART_VERSION="$(cat chart/${CHART_NAME}/Chart.yaml | grep version | awk '{print $2}')"
+      - helm upgrade --install ${RELEASE_NAME} --set image.repository="${IMAGE_NAME}",image.tag="${TAG}",image.pullPolicy=Never,elasticsearch.host=${RELEASE_NAME}-elasticsearch-client,inventory.url=http://${INVENTORY_RELEASE_NAME}-${INVENTORY_CHART_NAME}:${INVENTORY_SERVICE_PORT} ${CHART_NAME}-${CHART_VERSION}.tgz
+      # Get Deployment Name
+      - DEPLOYMENT="deployment/${RELEASE_NAME}-${CHART_NAME}"
+      # Wait for deployment to be ready
+      - kubectl rollout status ${DEPLOYMENT}
+      # Get logs
+      - kubectl logs -f ${DEPLOYMENT} &
+      # Port Forwarding
+      - kubectl port-forward ${DEPLOYMENT} ${SERVICE_PORT} ${MANAGEMENT_PORT} &
+      - echo "Sleeping for 3 seconds while connection is established..."
+      - sleep 3
+      # Let the application start
+      - bash scripts/health_check.sh
+      # Wait a few seconds until the catalog is loaded
+      - sleep 10
+      # Run API Test
+      - bash scripts/api_tests.sh
