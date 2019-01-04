@@ -43,7 +43,7 @@ def inventoryURL = env.INVENTORY_URL ?: "http://inventory-inventory:8080"
 def sleepTime = env.SLEEP_TIME ?: "10"
 def helmHome = env.HELM_HOME ?: env.JENKINS_HOME + "/.helm"
 
-podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, namespace: namespace, envVars: [
+podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, envVars: [
         envVar(key: 'CLUSTER_URL', value: clusterURL),
         envVar(key: 'CLUSTER_ACCOUNT_ID', value: clusterAccountId),
         envVar(key: 'NAMESPACE', value: namespace),
