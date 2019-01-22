@@ -41,10 +41,15 @@ spec:
             cpu: "{{ .Values.image.resources.requests.cpu }}"
             memory: "{{ .Values.image.resources.requests.memory }}"
         env:
-          - name: elasticsearch_url
-            value: "http://{{ .Release.Name }}-catalog-elasticsearch:9200"
+          {{ if .Values.travis }} 
+          - name: inventory_health
+            value: "http://{{ .Values.service.minikubeIp }}-inventory:9080/health"
+          {{ else }}
           - name: inventory_health
             value: "http://{{ .Release.Name }}-inventory:9080/health"
+          {{ end }}
+          - name: elasticsearch_url
+            value: "http://{{ .Release.Name }}-catalog-elasticsearch:9200"
           - name: zipkinHost
             value: "{{ .Release.Name }}-{{ .Values.service.zipkinName }}"
           - name: zipkinPort
