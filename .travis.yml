@@ -16,13 +16,13 @@ jobs:
       - mysql
       - docker
       env:
-      - elasticsearch_url=http://localhost:9200
+      - elasticsearch_url=http://localhost:9201
       - inventory_health=http://localhost:9081/inventory/health
       - zipkinHost=localhost
       - zipkinPort=9411
       before_script:
       - docker pull ibmcase/bluecompute-elasticsearch
-      - docker run -d -p 9200:9200 --name elasticsearch ibmcase/bluecompute-elasticsearch
+      - docker run -d -p 9201:9200 --name elasticsearch ibmcase/bluecompute-elasticsearch
       - echo "-Dclient.InventoryServiceClient/mp-rest/url=http://localhost:9081/inventory/rest/inventory/" >> src/main/liberty/config/jvm.options
       script:
       - mvn clean install
