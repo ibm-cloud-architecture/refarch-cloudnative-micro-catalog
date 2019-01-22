@@ -44,4 +44,8 @@ parse_arguments $1 $2
 
 # API Tests
 echo "Starting Tests"
+cat target/liberty/wlp/usr/servers/defaultServer/logs/console.log
+cat target/liberty/wlp/usr/servers/defaultServer/logs/messages.log
 get_items
+cat target/liberty/wlp/usr/servers/defaultServer/logs/console.log
+cat target/liberty/wlp/usr/servers/defaultServer/logs/messages.log
