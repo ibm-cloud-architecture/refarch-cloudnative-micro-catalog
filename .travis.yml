@@ -1,0 +1,71 @@
+sudo: required
+language: java
+env:
+  global:
+    - catalogHttpPort=9084
+    # - IMAGE_NAME=customer-mp
+    # - TAG=travis
+    # - RELEASE_NAME=cust
+stages:
+  - local build and test
+jobs:
+  include:
+    - stage: local build and test
+      services:
+      - elasticsearch
+      - mysql
+      - docker
+      env:
+      - elasticsearch_url=http://localhost:9200
+      - inventory_health=http://localhost:9081/inventory/health
+      - zipkinHost=localhost
+      - zipkinPort=9411
+      before_script:
+      - docker pull ibmcase/bluecompute-elasticsearch
+      - docker run -d -p 9200:9200 --name elasticsearch ibmcase/bluecompute-elasticsearch
+      - echo "-Dclient.InventoryServiceClient/mp-rest/url=http://localhost:9081/inventory/rest/inventory/" >> src/main/liberty/config/jvm.options
+      script:
+      - mvn clean install
+      - mvn liberty:start-server -DtestServerHttpPort=9082
+      - sleep 25
+      # Run Catalog API Test
+      - bash scripts/api_tests.sh localhost $catalogHttpPort
+
+
+
+
+
+      # - stage: kubernetes build, deploy, and test
+    #   services:
+    #   - docker
+    #   env:
+    #   - CHANGE_MINIKUBE_NONE_USER=true
+    #   install:
+    #     - true
+    #   before_script:
+    #   # Install nsenter, which is needed for minikube to work
+    #   - bash scripts/install_minikube_and_helm.sh
+    #   # Run Kubernetes Job and run Auth
+    #   - helm install --name keystore services-bc-mp/keystore
+    #   - helm install --set service.name=service --name auth services-bc-mp/auth
+    #   script:
+    #   # Maven Build
+    #   - mvn clean install
+    #   # Build Docker image
+    #   - docker build -t "${IMAGE_NAME}:${TAG}" .
+    #   # Swap server.yaml because ReleaseName conflicts
+    #   - cp scripts/server.yaml chart/customer/templates/server.yaml
+    #   # Install Customer
+    #   - helm install --set service.auth=service --set image.repository=${IMAGE_NAME} --set image.tag=${TAG} --name ${RELEASE_NAME} ./chart/customer/
+    #   # Wait for Customer to be ready
+    #   - kubectl get deployments ${RELEASE_NAME}-customer -o yaml
+    #   - READY=$(kubectl get deployments ${RELEASE_NAME}-customer -o yaml | grep "readyReplicas" | awk '{print $2}')
+    #   - echo $READY
+    #   - until [ -n "$READY" ] && [ ${READY} -ge 1 ]; do READY=$(kubectl get deployments ${RELEASE_NAME}-customer -o yaml | grep "readyReplicas" | awk '{print $2}'); kubectl get deployments -o wide; echo "Waiting for customer to be ready"; sleep 10; done
+    #   # Wait for cust deployment to start accepting connections
+    #   - sleep 35
+    #   # Run auth API Test
+    #   - MINIKUBE_IP=$(minikube ip)
+    #   - CUST_NODE_PORT=$(kubectl get service ${RELEASE_NAME}-customer -o=jsonpath='{.spec.ports[1].nodePort}')
+    #   - AUTH_NODE_PORT=$(kubectl get service auth-service -o=jsonpath='{.spec.ports[1].nodePort}')
+    #   - bash scripts/api_tests.sh $MINIKUBE_IP $CUST_NODE_PORT $MINIKUBE_IP $AUTH_NODE_PORT
