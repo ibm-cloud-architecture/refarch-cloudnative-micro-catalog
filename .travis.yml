@@ -62,11 +62,14 @@ jobs:
       # Install Catalog
       - helm install --set travis=true --set service.minikubeIp=$MINIKUBE_IP --set image.repository=${IMAGE_NAME} --set image.tag=${TAG} --name ${RELEASE_NAME} ./chart/catalog/
       # Wait for Catalog to be ready
+      - CATALOG_POD=$(kubectl get pods | grep catalog-catalog | awk '{print $1}')
+      - wait 25
+      - kubectl describe pod $CATALOG_POD
       - kubectl get deployments ${RELEASE_NAME}-catalog -o yaml
       - READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}')
       - echo $READY
       - until [ -n "$READY" ] && [ ${READY} -ge 1 ]; do READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}'); kubectl get deployments -o wide; echo "Waiting for customer to be ready"; sleep 10; done
-      # Wait for cust deployment to start accepting connections
+      # Wait for catalog deployment to start accepting connections
       - sleep 35
       # Run auth API Test
       - CATALOG_NODE_PORT=$(kubectl get service ${RELEASE_NAME}-catalog -o=jsonpath='{.spec.ports[1].nodePort}')
