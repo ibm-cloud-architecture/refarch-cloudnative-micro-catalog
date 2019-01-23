@@ -3,7 +3,7 @@
     <featureManager>
         <feature>microProfile-1.4</feature>
         <feature>ejbLite-3.2</feature>
-        <feature>usr:opentracingZipkin-0.30</feature>
+        <feature>usr:opentracingZipkin-0.31</feature>
     </featureManager>
 
     <httpEndpoint httpPort="${default.http.port}" httpsPort="${default.https.port}"
