@@ -43,7 +43,7 @@ spec:
         env:
           {{ if .Values.travis }} 
           - name: inventory_health
-            value: "http://{{ .Values.service.minikubeIp }}-inventory:9080/health"
+            value: "http://{{ .Values.service.minikubeIp }}:9080/health"
           {{ else }}
           - name: inventory_health
             value: "http://{{ .Release.Name }}-inventory:9080/health"
