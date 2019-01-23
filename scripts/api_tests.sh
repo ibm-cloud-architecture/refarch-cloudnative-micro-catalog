@@ -29,7 +29,7 @@ function parse_arguments() {
 function get_items() {
 	CURL=$(curl -X GET http://${CATALOG_HOST}:${CATALOG_PORT}/catalog/rest/items)
 	# CURL=$(curl -s --max-time 5 http://${CATALOG_HOST}:${CATALOG_PORT}/micro/items | jq '. | length');
-	echo "Found items with \"${CURL}\" items"
+	echo "Found \"${CURL}\""
 
 	if [ -z "${CURL}" ] || [ ! "${CURL}" -gt "0" ]; then
 		echo "get_items: ❌ could not get items";

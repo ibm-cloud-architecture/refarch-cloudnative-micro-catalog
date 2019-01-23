@@ -69,5 +69,5 @@ jobs:
       # Wait for cust deployment to start accepting connections
       - sleep 35
       # Run auth API Test
-      - CATALOG_NODE_PORT=$(kubectl get service ${RELEASE_NAME}-customer -o=jsonpath='{.spec.ports[1].nodePort}')
+      - CATALOG_NODE_PORT=$(kubectl get service ${RELEASE_NAME}-catalog -o=jsonpath='{.spec.ports[1].nodePort}')
       - bash scripts/api_tests.sh $MINIKUBE_IP $CATALOG_NODE_PORT
