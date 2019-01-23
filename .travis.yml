@@ -65,7 +65,7 @@ jobs:
       - kubectl get deployments ${RELEASE_NAME}-catalog -o yaml
       - READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}')
       - echo $READY
-      - until [ -n "$READY" ] && [ ${READY} -ge 1 ]; do READY=$(kubectl get deployments ${RELEASE_NAME}-customer -o yaml | grep "readyReplicas" | awk '{print $2}'); kubectl get deployments -o wide; echo "Waiting for customer to be ready"; sleep 10; done
+      - until [ -n "$READY" ] && [ ${READY} -ge 1 ]; do READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}'); kubectl get deployments -o wide; echo "Waiting for customer to be ready"; sleep 10; done
       # Wait for cust deployment to start accepting connections
       - sleep 35
       # Run auth API Test
