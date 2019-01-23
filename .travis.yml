@@ -62,7 +62,7 @@ jobs:
       # Install Catalog
       - helm install --set travis=true --set service.minikubeIp=$MINIKUBE_IP --set image.repository=${IMAGE_NAME} --set image.tag=${TAG} --name ${RELEASE_NAME} ./chart/catalog/
       # Wait for Catalog to be ready
-      - CATALOG_NODE_PORT=$(kubectl get service ${RELEASE_NAME}-catalog -o=jsonpath='{.spec.ports[1].nodePort}')
+      - CATALOG_NODE_PORT=$(kubectl get service ${RELEASE_NAME}-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
       - CATALOG_POD=$(kubectl get pods | grep catalog-catalog | awk '{print $1}')
       - kubectl get services
       - sleep 25
@@ -76,5 +76,5 @@ jobs:
       # Wait for catalog deployment to start accepting connections
       - sleep 35
       # Run auth API Test
-      - CATALOG_NODE_PORT=$(kubectl get service ${RELEASE_NAME}-catalog -o=jsonpath='{.spec.ports[1].nodePort}')
+      - CATALOG_NODE_PORT=$(kubectl get service ${RELEASE_NAME}-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
       - bash scripts/api_tests.sh $MINIKUBE_IP $CATALOG_NODE_PORT

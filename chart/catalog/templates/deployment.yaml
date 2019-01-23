@@ -20,7 +20,7 @@ spec:
       containers:
       - name: "{{  .Chart.Name  }}"
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
 {{ if .Values.istio.enabled }}
 {{ else }}
         readinessProbe:
