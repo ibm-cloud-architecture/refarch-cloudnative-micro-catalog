@@ -64,9 +64,11 @@ jobs:
       # Wait for Catalog to be ready
       - CATALOG_NODE_PORT=$(kubectl get service ${RELEASE_NAME}-catalog -o=jsonpath='{.spec.ports[1].nodePort}')
       - CATALOG_POD=$(kubectl get pods | grep catalog-catalog | awk '{print $1}')
-      - wait 25
+      - kubectl get services
+      - sleep 25
       - curl "http://${MINIKUBE_IP}:${CATALOG_NODE_PORT}/health"
       - kubectl describe pod $CATALOG_POD
+      - kubectl logs $CATALOG_POD
       - kubectl get deployments ${RELEASE_NAME}-catalog -o yaml
       - READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}')
       - echo $READY
