@@ -1,4 +1,4 @@
-FROM websphere-liberty:microProfile2
+FROM websphere-liberty:microProfile1
 
 MAINTAINER IBM Java engineering at IBM Cloud
 
