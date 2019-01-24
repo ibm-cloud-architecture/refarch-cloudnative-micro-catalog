@@ -65,7 +65,6 @@ jobs:
       - CATALOG_NODE_PORT=$(kubectl get service ${RELEASE_NAME}-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
       - CATALOG_POD=$(kubectl get pods | grep catalog-catalog | awk '{print $1}')
       - kubectl get services
-      - sleep 25
       - curl "http://${MINIKUBE_IP}:${CATALOG_NODE_PORT}/health"
       - kubectl describe pod $CATALOG_POD
       - kubectl logs $CATALOG_POD
