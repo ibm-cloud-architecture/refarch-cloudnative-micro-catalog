@@ -35,8 +35,8 @@ function get_items() {
   kubectl describe pod $CATALOG_POD
   kubectl logs $CATALOG_POD
 	INVENTORY_POD=$(kubectl get pods | grep inventory-inventory | awk '{print $1}')
-	kubectl describe pod $CATALOG_POD
-  kubectl logs $CATALOG_POD
+	kubectl describe pod $INVENTORY_POD
+  kubectl logs $INVENTORY_POD
 
 
 	if [ -z "${CURL}" ] || [ ! "${CURL}" -gt "0" ]; then
