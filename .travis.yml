@@ -54,7 +54,8 @@ jobs:
       # Run Inventory
       - helm install --name inventory services-bc-mp/inventory
       - MINIKUBE_IP=$(minikube ip)
-      script:
+      - echo "-Dclient.InventoryServiceClient/mp-rest/url=http://${MINIKUBE_IP}:9080/inventory/rest/inventory/" >> src/main/liberty/config/jvm.options
+      script:localhost
       # Maven Build
       - mvn clean install
       # Build Docker image
