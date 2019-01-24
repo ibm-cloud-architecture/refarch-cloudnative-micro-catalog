@@ -54,7 +54,7 @@ jobs:
       # Run Inventory
       - helm install --name inventory services-bc-mp/inventory
       - MINIKUBE_IP=$(minikube ip)
-      - INVENTORY_NODE_PORT=$(kubectl get service ${RELEASE_NAME}-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
+      - INVENTORY_NODE_PORT=$(kubectl get service inventory-inventory -o=jsonpath='{.spec.ports[0].nodePort}')
       - echo "-Dclient.InventoryServiceClient/mp-rest/url=http://${MINIKUBE_IP}:${INVENTORY_NODE_PORT}/inventory/rest/inventory/" >> src/main/liberty/config/jvm.options
       script:
       # Maven Build
