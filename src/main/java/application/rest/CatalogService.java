@@ -30,8 +30,8 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.opentracing.Traced;
 
-import io.opentracing.ActiveSpan;
-import io.opentracing.Tracer;
+import io.opentracing.v_030.ActiveSpan;
+import io.opentracing.v_030.Tracer;
 
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 
