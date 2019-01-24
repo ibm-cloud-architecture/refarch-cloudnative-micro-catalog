@@ -51,6 +51,8 @@ jobs:
       before_script:
       # Install nsenter, which is needed for minikube to work
       - bash scripts/install_minikube_and_helm.sh
+      # Install MySQL
+      - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb stable/mysql
       # Run Inventory
       - helm install --name inventory services-bc-mp/inventory
       - MINIKUBE_IP=$(minikube ip)
