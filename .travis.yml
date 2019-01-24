@@ -6,7 +6,6 @@ env:
     - IMAGE_NAME=catalog-mp
     - TAG=travis
     - RELEASE_NAME=catalog
-    - SQL_IMAGE_NAME=invdb
 stages:
   - local build and test
 jobs:
@@ -52,12 +51,10 @@ jobs:
       before_script:
       # Install nsenter, which is needed for minikube to work
       - bash scripts/install_minikube_and_helm.sh
-      # Prepare InvDB
-      - cd mysql
-      - docker build -t "${SQL_IMAGE_NAME}:${TAG}" .
-      - cd -
+      # Pull a InvDB
+      - docker pull ibmcase/bc-inventorydb:v2.0.0
       # Install MySQL
-      - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb,image=$SQL_IMAGE_NAME,tag=${TAG} stable/mysql
+      - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb,image=ibmcase/bc-inventorydb,tag=v2.0.0 stable/mysql
       # Run Inventory
       - helm install --set travis=true --name inventory services-bc-mp/inventory
       - MINIKUBE_IP=$(minikube ip)
