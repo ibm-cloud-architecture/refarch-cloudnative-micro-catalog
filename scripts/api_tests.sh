@@ -34,6 +34,10 @@ function get_items() {
 	CATALOG_POD=$(kubectl get pods | grep catalog-catalog | awk '{print $1}')
   kubectl describe pod $CATALOG_POD
   kubectl logs $CATALOG_POD
+	INVENTORY_POD=$(kubectl get pods | grep inventory-inventory | awk '{print $1}')
+	kubectl describe pod $CATALOG_POD
+  kubectl logs $CATALOG_POD
+
 
 	if [ -z "${CURL}" ] || [ ! "${CURL}" -gt "0" ]; then
 		echo "get_items: ❌ could not get items";
