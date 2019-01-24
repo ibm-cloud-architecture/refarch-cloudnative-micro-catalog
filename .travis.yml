@@ -54,8 +54,8 @@ jobs:
       # Run Inventory
       - helm install --name inventory services-bc-mp/inventory
       - MINIKUBE_IP=$(minikube ip)
-      - CATALOG_NODE_PORT=$(kubectl get service ${RELEASE_NAME}-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
-      - echo "-Dclient.InventoryServiceClient/mp-rest/url=http://${MINIKUBE_IP}:${CATALOG_NODE_PORT}/inventory/rest/inventory/" >> src/main/liberty/config/jvm.options
+      - INVENTORY_NODE_PORT=$(kubectl get service ${RELEASE_NAME}-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
+      - echo "-Dclient.InventoryServiceClient/mp-rest/url=http://${MINIKUBE_IP}:${INVENTORY_NODE_PORT}/inventory/rest/inventory/" >> src/main/liberty/config/jvm.options
       script:
       # Maven Build
       - mvn clean install
@@ -71,4 +71,5 @@ jobs:
       # Wait for catalog deployment to start accepting connections
       - sleep 35
       # Run auth API Test
+      - CATALOG_NODE_PORT=$(kubectl get service ${RELEASE_NAME}-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
       - bash scripts/api_tests.sh $MINIKUBE_IP $CATALOG_NODE_PORT
