@@ -10,37 +10,37 @@ stages:
   - local build and test
 jobs:
   include:
-    - stage: local build and test
-      services:
-      - elasticsearch
-      - mysql
-      - docker
-      env:
-      - elasticsearch_url=http://localhost:9201
-      - inventory_health=http://localhost:9081/inventory/health
-      - zipkinHost=localhost
-      - zipkinPort=9411
-      before_script:
-      - export GATEWAY=$(docker network inspect bridge | grep "Gateway" | awk '/"/{print $2}' | sed -e 's/^"//' -e 's/"$//')
-      # Setup Inventory
-      # Pull and run inventorydb
-      - docker pull ibmcase/bc-inventorydb:v2.0.0
-      - docker run -p 9041:3306 -d --name inventorydb -e MYSQL_ROOT_PASSWORD=password ibmcase/bc-inventorydb:v2.0.0
-      # Run Inventory and start it w/ vars
-      - docker pull ibmcase/inventory-mp:v2.0.0
-      - docker create --name inventory -p 9444:9443 -p 9081:9080 -e zipkinHost=localhost -e zipkinPort=9411 -e jdbcURL=jdbc:mysql://${GATEWAY}:9041/inventorydb?useSSL=false -e dbuser=root -e dbpassword=password -e rabbit=${GATEWAY} ibmcase/inventory-mp:v2.0.0
-      - docker start inventory
-      # Setup elastic search
-      - docker pull ibmcase/bluecompute-elasticsearch
-      - docker run -d -p 9201:9200 --name elasticsearch ibmcase/bluecompute-elasticsearch #9200 seems arbitrarily taken in Travis
-      # Set mpRestClient URL
-      - echo "-Dclient.InventoryServiceClient/mp-rest/url=http://localhost:9081/inventory/rest/inventory/" >> src/main/liberty/config/jvm.options
-      script:
-      - mvn clean install
-      - mvn liberty:start-server -DtestServerHttpPort=$catalogHttpPort
-      - sleep 25
-      # Run Catalog API Test
-      - bash scripts/api_tests.sh localhost $catalogHttpPort
+    # - stage: local build and test
+    #   services:
+    #   - elasticsearch
+    #   - mysql
+    #   - docker
+    #   env:
+    #   - elasticsearch_url=http://localhost:9201
+    #   - inventory_health=http://localhost:9081/inventory/health
+    #   - zipkinHost=localhost
+    #   - zipkinPort=9411
+    #   before_script:
+    #   - export GATEWAY=$(docker network inspect bridge | grep "Gateway" | awk '/"/{print $2}' | sed -e 's/^"//' -e 's/"$//')
+    #   # Setup Inventory
+    #   # Pull and run inventorydb
+    #   - docker pull ibmcase/bc-inventorydb:v2.0.0
+    #   - docker run -p 9041:3306 -d --name inventorydb -e MYSQL_ROOT_PASSWORD=password ibmcase/bc-inventorydb:v2.0.0
+    #   # Run Inventory and start it w/ vars
+    #   - docker pull ibmcase/inventory-mp:v2.0.0
+    #   - docker create --name inventory -p 9444:9443 -p 9081:9080 -e zipkinHost=localhost -e zipkinPort=9411 -e jdbcURL=jdbc:mysql://${GATEWAY}:9041/inventorydb?useSSL=false -e dbuser=root -e dbpassword=password -e rabbit=${GATEWAY} ibmcase/inventory-mp:v2.0.0
+    #   - docker start inventory
+    #   # Setup elastic search
+    #   - docker pull ibmcase/bluecompute-elasticsearch
+    #   - docker run -d -p 9201:9200 --name elasticsearch ibmcase/bluecompute-elasticsearch #9200 seems arbitrarily taken in Travis
+    #   # Set mpRestClient URL
+    #   - echo "-Dclient.InventoryServiceClient/mp-rest/url=http://localhost:9081/inventory/rest/inventory/" >> src/main/liberty/config/jvm.options
+    #   script:
+    #   - mvn clean install
+    #   - mvn liberty:start-server -DtestServerHttpPort=$catalogHttpPort
+    #   - sleep 25
+    #   # Run Catalog API Test
+    #   - bash scripts/api_tests.sh localhost $catalogHttpPort
     - stage: kubernetes build, deploy, and test
       services:
       - docker
