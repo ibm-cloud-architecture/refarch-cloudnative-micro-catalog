@@ -31,13 +31,12 @@ function get_items() {
 	# CURL=$(curl -s --max-time 5 http://${CATALOG_HOST}:${CATALOG_PORT}/micro/items | jq '. | length');
 	echo "Found \"${CURL}\""
 
-	CATALOG_POD=$(kubectl get pods | grep catalog-catalog | awk '{print $1}')
-  kubectl describe pod $CATALOG_POD
-  kubectl logs $CATALOG_POD
-	INVENTORY_POD=$(kubectl get pods | grep -v "inventory-inventory-job" | grep inventory-inventory | awk '{print $1}')
-	kubectl describe pod $INVENTORY_POD
-  kubectl logs $INVENTORY_POD
-
+	# CATALOG_POD=$(kubectl get pods | grep catalog-catalog | awk '{print $1}')
+  # kubectl describe pod $CATALOG_POD
+  # kubectl logs $CATALOG_POD
+	# INVENTORY_POD=$(kubectl get pods | grep -v "inventory-inventory-job" | grep inventory-inventory | awk '{print $1}')
+	# kubectl describe pod $INVENTORY_POD
+  # kubectl logs $INVENTORY_POD
 
 	if [ -z "${CURL}" ] || [ ! "${CURL}" -gt "0" ]; then
 		echo "get_items: ❌ could not get items";
