@@ -53,9 +53,8 @@ jobs:
       - bash scripts/install_minikube_and_helm.sh
       # Pull a InvDB
       - docker pull ibmcase/bc-inventorydb:v2.0.0
-      - docker run -p 9041:3306 -d --name inventorydb -e MYSQL_ROOT_PASSWORD=password ibmcase/bc-inventorydb:v2.0.0
       # Install MySQL
-      # - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb,image=ibmcase/bc-inventorydb,tag=v2.0.0 stable/mysql
+      - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb,image=ibmcase/bc-inventorydb,tag=v2.0.0 stable/mysql
       # Run Inventory
       - helm install --set travis=true --name inventory services-bc-mp/inventory
       # Setup ElasticSearch
