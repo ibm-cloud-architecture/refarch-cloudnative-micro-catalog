@@ -44,12 +44,14 @@ spec:
           {{ if .Values.travis }} 
           - name: inventory_health
             value: "http://{{ .Values.service.minikubeIp }}:9080/health"
+          - name: elasticsearch_url
+            value: "http://{{ .Values.elasticsearchHost }}:9200"
           {{ else }}
           - name: inventory_health
             value: "http://{{ .Release.Name }}-inventory:9080/health"
-          {{ end }}
           - name: elasticsearch_url
             value: "http://{{ .Release.Name }}-catalog-elasticsearch:9200"
+          {{ end }}
           - name: zipkinHost
             value: "{{ .Release.Name }}-{{ .Values.service.zipkinName }}"
           - name: zipkinPort
