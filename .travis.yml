@@ -53,13 +53,14 @@ jobs:
       - bash scripts/install_minikube_and_helm.sh
       # Pull a InvDB
       - docker pull ibmcase/bc-inventorydb:v2.0.0
+      - docker run -p 9041:3306 -d --name inventorydb -e MYSQL_ROOT_PASSWORD=password ibmcase/bc-inventorydb:v2.0.0
       # Install MySQL
-      - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb,image=ibmcase/bc-inventorydb,tag=v2.0.0 stable/mysql
+      # - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb,image=ibmcase/bc-inventorydb,tag=v2.0.0 stable/mysql
       # Run Inventory
       - helm install --set travis=true --name inventory services-bc-mp/inventory
       - MINIKUBE_IP=$(minikube ip)
       - INVENTORY_NODE_PORT=$(kubectl get service inventory-inventory -o=jsonpath='{.spec.ports[0].nodePort}')
-      - echo "-Dclient.InventoryServiceClient/mp-rest/url=http://${MINIKUBE_IP}:${INVENTORY_NODE_PORT}/inventory/rest/inventory/" >> src/main/liberty/config/jvm.options
+      - echo "-Dclient.InventoryServiceClient/mp-rest/url=http://localhost:9041/inventory/rest/inventory/" >> src/main/liberty/config/jvm.options
       script:
       # Maven Build
       - mvn clean install
