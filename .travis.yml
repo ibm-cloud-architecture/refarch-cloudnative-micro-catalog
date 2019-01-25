@@ -58,9 +58,11 @@ jobs:
       # - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb,image=ibmcase/bc-inventorydb,tag=v2.0.0 stable/mysql
       # Run Inventory
       - helm install --set travis=true --name inventory services-bc-mp/inventory
+      # Setup ElasticSearch
+      - helm install --set clustername=catalog --name es ./chart/ibmcase-elasticsearch
       - MINIKUBE_IP=$(minikube ip)
       - INVENTORY_NODE_PORT=$(kubectl get service inventory-inventory -o=jsonpath='{.spec.ports[0].nodePort}')
-      - echo "-Dclient.InventoryServiceClient/mp-rest/url=http://localhost:9041/inventory/rest/inventory/" >> src/main/liberty/config/jvm.options
+      - echo "-Dclient.InventoryServiceClient/mp-rest/url=http://${MINIKUBE_IP}:${INVENTORY_NODE_PORT}/inventory/rest/inventory/" >> src/main/liberty/config/jvm.options
       script:
       # Maven Build
       - mvn clean install
