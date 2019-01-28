@@ -1,0 +1,81 @@
+sudo: required
+language: java
+env:
+  global:
+    - catalogHttpPort=9082
+    - IMAGE_NAME=catalog-mp
+    - TAG=travis
+    - RELEASE_NAME=catalog
+stages:
+  - local build and test
+jobs:
+  include:
+    - stage: local build and test
+      services:
+      - elasticsearch
+      - mysql
+      - docker
+      env:
+      - elasticsearch_url=http://localhost:9201
+      - inventory_health=http://localhost:9081/inventory/health
+      - zipkinHost=localhost
+      - zipkinPort=9411
+      before_script:
+      - export GATEWAY=$(docker network inspect bridge | grep "Gateway" | awk '/"/{print $2}' | sed -e 's/^"//' -e 's/"$//')
+      # Setup Inventory
+      # Pull and run inventorydb
+      - docker pull ibmcase/bc-inventorydb:v2.0.0
+      - docker run -p 9041:3306 -d --name inventorydb -e MYSQL_ROOT_PASSWORD=password ibmcase/bc-inventorydb:v2.0.0
+      # Run Inventory and start it w/ vars
+      - docker pull ibmcase/inventory-mp:v2.0.0
+      - docker create --name inventory -p 9444:9443 -p 9081:9080 -e zipkinHost=localhost -e zipkinPort=9411 -e jdbcURL=jdbc:mysql://${GATEWAY}:9041/inventorydb?useSSL=false -e dbuser=root -e dbpassword=password -e rabbit=${GATEWAY} ibmcase/inventory-mp:v2.0.0
+      - docker start inventory
+      # Setup elastic search
+      - docker pull ibmcase/bluecompute-elasticsearch
+      - docker run -d -p 9201:9200 --name elasticsearch ibmcase/bluecompute-elasticsearch #9200 seems arbitrarily taken in Travis
+      # Set mpRestClient URL
+      - echo "-Dclient.InventoryServiceClient/mp-rest/url=http://localhost:9081/inventory/rest/inventory/" >> src/main/liberty/config/jvm.options
+      script:
+      - mvn clean install
+      - mvn liberty:start-server -DtestServerHttpPort=$catalogHttpPort
+      - sleep 25
+      # Run Catalog API Test
+      - bash scripts/api_tests.sh localhost $catalogHttpPort
+    - stage: kubernetes build, deploy, and test
+      services:
+      - docker
+      env:
+      - CHANGE_MINIKUBE_NONE_USER=true
+      install:
+        - true
+      before_script:
+      # Install nsenter, which is needed for minikube to work
+      - bash scripts/install_minikube_and_helm.sh
+      # Pull a InvDB
+      - docker pull ibmcase/bc-inventorydb:v2.0.0
+      # Install MySQL
+      - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb,image=ibmcase/bc-inventorydb,tag=v2.0.0 stable/mysql
+      # Run Inventory
+      - helm install --set travis=true --name inventory services-bc-mp/inventory
+      # Setup ElasticSearch
+      - helm install --set clustername=catalog --name es ./chart/ibmcase-elasticsearch
+      - MINIKUBE_IP=$(minikube ip)
+      - INVENTORY_NODE_PORT=$(kubectl get service inventory-inventory -o=jsonpath='{.spec.ports[0].nodePort}')
+      - echo "-Dclient.InventoryServiceClient/mp-rest/url=http://${MINIKUBE_IP}:${INVENTORY_NODE_PORT}/inventory/rest/inventory/" >> src/main/liberty/config/jvm.options
+      script:
+      # Maven Build
+      - mvn clean install
+      # Build Docker image
+      - docker build -t "${IMAGE_NAME}:${TAG}" .
+      # Install Catalog
+      - helm install --set travis=true --set service.minikubeIp=$MINIKUBE_IP --set image.repository=${IMAGE_NAME} --set image.tag=${TAG} --name ${RELEASE_NAME} ./chart/catalog/
+      # Wait for Catalog to be ready
+      - kubectl get deployments ${RELEASE_NAME}-catalog -o yaml
+      - READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}')
+      - echo $READY
+      - until [ -n "$READY" ] && [ ${READY} -ge 1 ]; do READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}'); kubectl get deployments -o wide; echo "Waiting for customer to be ready"; sleep 10; done
+      # Wait for catalog deployment to start accepting connections
+      - sleep 35
+      # Run auth API Test
+      - CATALOG_NODE_PORT=$(kubectl get service ${RELEASE_NAME}-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
+      - bash scripts/api_tests.sh $MINIKUBE_IP $CATALOG_NODE_PORT

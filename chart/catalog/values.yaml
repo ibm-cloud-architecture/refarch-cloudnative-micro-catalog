@@ -7,7 +7,7 @@ image:
   repository: ibmcase/catalog-mp
   #repository: catalog-mp
   tag: v3.0.0
-  #pullPolicy: IfNotPresent
+  pullPolicy: IfNotPresent
   resources:
     requests:
       cpu: 200m
@@ -19,6 +19,8 @@ service:
   servicePortHttps: 9443
   zipkinPort: 9411
   zipkinName: zipkin
+  minikubeIp: 10.20.0.169 # Will likely change
+  elasticsearchHost: es-catalog-elasticsearch
 volumes:
   mountPath: /opt/ibm/wlp/usr/shared
 hpa:
@@ -40,3 +42,4 @@ base:
 istio:
   enabled: false
   weight: 100
+travis: false

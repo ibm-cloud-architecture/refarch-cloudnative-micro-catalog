@@ -20,7 +20,7 @@ spec:
       containers:
       - name: "{{  .Chart.Name  }}"
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
 {{ if .Values.istio.enabled }}
 {{ else }}
         readinessProbe:
@@ -41,10 +41,17 @@ spec:
             cpu: "{{ .Values.image.resources.requests.cpu }}"
             memory: "{{ .Values.image.resources.requests.memory }}"
         env:
+          {{ if .Values.travis }} 
+          - name: inventory_health
+            value: "http://{{ .Values.service.minikubeIp }}:9080/health"
           - name: elasticsearch_url
-            value: "http://{{ .Release.Name }}-catalog-elasticsearch:9200"
+            value: "http://{{ .Values.elasticsearchHost }}:9200"
+          {{ else }}
           - name: inventory_health
             value: "http://{{ .Release.Name }}-inventory:9080/health"
+          - name: elasticsearch_url
+            value: "http://{{ .Release.Name }}-catalog-elasticsearch:9200"
+          {{ end }}
           - name: zipkinHost
             value: "{{ .Release.Name }}-{{ .Values.service.zipkinName }}"
           - name: zipkinPort
