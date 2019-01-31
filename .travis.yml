@@ -6,6 +6,7 @@ env:
     - IMAGE_NAME=catalog-mp
     - TAG=travis
     - RELEASE_NAME=catalog
+    - INVENTORY_RELEASE=inventory
 stages:
   - local build and test
 jobs:
@@ -54,21 +55,19 @@ jobs:
       # Pull a InvDB
       - docker pull ibmcase/bc-inventorydb:v2.0.0
       # Install MySQL
-      - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb,image=ibmcase/bc-inventorydb,tag=v2.0.0 stable/mysql
+      - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb,image=ibmcase/bc-inventorydb,imageTag=v2.0.0 stable/mysql
       # Run Inventory
-      - helm install --set travis=true --name inventory services-bc-mp/inventory
+      - helm install --set travis=true --name ${INVENTORY_RELEASE} services-bc-mp/inventory
       # Setup ElasticSearch
       - helm install --set clustername=catalog --name es ./chart/ibmcase-elasticsearch
       - MINIKUBE_IP=$(minikube ip)
-      - INVENTORY_NODE_PORT=$(kubectl get service inventory-inventory -o=jsonpath='{.spec.ports[0].nodePort}')
-      - echo "-Dclient.InventoryServiceClient/mp-rest/url=http://${MINIKUBE_IP}:${INVENTORY_NODE_PORT}/inventory/rest/inventory/" >> src/main/liberty/config/jvm.options
       script:
       # Maven Build
       - mvn clean install
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
       # Install Catalog
-      - helm install --set travis=true --set service.minikubeIp=$MINIKUBE_IP --set image.repository=${IMAGE_NAME} --set image.tag=${TAG} --name ${RELEASE_NAME} ./chart/catalog/
+      - helm install --set travis=true --set image.repository=${IMAGE_NAME},image.tag=${TAG} --name ${RELEASE_NAME} ./chart/catalog/
       # Wait for Catalog to be ready
       - kubectl get deployments ${RELEASE_NAME}-catalog -o yaml
       - READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}')
