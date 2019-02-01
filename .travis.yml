@@ -26,7 +26,7 @@ jobs:
       - docker run -d --name rabbitmq rabbitmq
       # Setup elastic search
       - docker pull ibmcase/bluecompute-elasticsearch
-      - docker run -d -p 9201:9200 -p 9300:9300--name elasticsearch ibmcase/bluecompute-elasticsearch #9200 seems arbitrarily taken in Travis
+      - docker run -d -p 9201:9200 -p 9300:9300 --name elasticsearch ibmcase/bluecompute-elasticsearch #9200 seems arbitrarily taken in Travis
       # Pull and run inventorydb
       - docker pull ibmcase/bc-inventorydb:v2.0.0
       - docker run -p 9041:3306 -d --name inventorydb -e MYSQL_ROOT_PASSWORD=password ibmcase/bc-inventorydb:v2.0.0
