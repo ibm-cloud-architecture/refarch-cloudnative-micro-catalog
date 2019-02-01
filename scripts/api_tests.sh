@@ -38,12 +38,12 @@ function get_items() {
 	# kubectl describe pod $INVENTORY_POD
   # kubectl logs $INVENTORY_POD
 
-	if [ -z "${CURL}" ] || [ ! "${CURL}" -gt "0" ]; then
-		echo "get_items: ❌ could not get items";
+	if [[ $CURL == *meat-chopper* ]]; then
+		echo "get_items: ❌ could not get items, or the MEAT_CHOPPER";
         exit 1;
     else
     	echo "get_items: ✅";
-    fi
+	fi
 }
 
 # Setup
