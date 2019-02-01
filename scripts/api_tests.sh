@@ -20,7 +20,7 @@ function parse_arguments() {
 
 	if [ -z "${CATALOG_PORT}" ]; then
 		echo "CATALOG_PORT not set. Using default key";
-		CATALOG_PORT=9084;
+		CATALOG_PORT=9082;
 	fi
 
 	echo "Using http://${CATALOG_HOST}:${CATALOG_PORT}"

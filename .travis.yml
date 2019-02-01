@@ -2,7 +2,6 @@ sudo: required
 language: java
 env:
   global:
-    - CATALOG_PORT=9082
     - IMAGE_NAME=catalog-mp
     - TAG=travis
     - RELEASE_NAME=catalog
@@ -42,12 +41,12 @@ jobs:
       - echo "-Dinventory_health=http://localhost:9081/health" >> src/main/liberty/config/jvm.options
       script:
       - mvn clean install
-      - mvn liberty:start-server -DtestServerHttpPort=${CATALOG_PORT}
+      - mvn liberty:start-server -DtestServerHttpPort=9082
       - sleep 25
       # Run Catalog API Test
       - curl http://localhost:9081/inventory/rest/inventory
       - curl http://localhost:9082/health
-      - bash scripts/api_tests.sh localhost ${CATALOG_PORT}
+      - bash scripts/api_tests.sh
     - stage: kubernetes build, deploy, and test
       services:
       - docker
@@ -82,9 +81,5 @@ jobs:
       # Wait for catalog deployment to start accepting connections
       - sleep 35
       # Run auth API Test
-      - kubectl get services
-      - kubectl get service ${RELEASE_NAME}-catalog
       - CATALOG_NODE_PORT=$(kubectl get service ${RELEASE_NAME}-catalog -o=jsonpath='{.spec.ports[0].nodePort}')
-      - echo $CATALOG_NODE_PORT
-      - echo ${CATALOG_NODE_PORT}
       - bash scripts/api_tests.sh $MINIKUBE_IP $CATALOG_NODE_PORT
