@@ -27,7 +27,7 @@ function parse_arguments() {
 }
 
 function get_items() {
-	CURL=$(curl -X GET http://${CATALOG_HOST}:${CATALOG_PORT}/catalog/rest/items | jq '.[0].id' | sed -e 's/^"//' -e 's/"$//'))
+	CURL=$(curl -X GET http://${CATALOG_HOST}:${CATALOG_PORT}/catalog/rest/items | jq '.[0].id' | sed -e 's/^"//' -e 's/"$//')
 	echo "Found \"${CURL}\"" # Remove the jq parsing to see whole list
 
 	# CATALOG_POD=$(kubectl get pods | grep catalog-catalog | awk '{print $1}')
