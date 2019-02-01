@@ -94,7 +94,7 @@ If you want to access the traces for catalog service, run Zipkin as a docker con
 
 ## Running the app and stopping it
 
-Before running this application, make sure [Inventory Service](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/blob/microprofile/inventory/building-locally.md) is up and running.
+Before running this application, make sure [Inventory Service](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/blob/microprofile/building-locally.md) is up and running.
 
 1. Set the environment variables before you start your application. The host and port depends on the service you use. You can run the Elastic Search locally on your system using the Elastic Search docker container or use the [Elasticsearch Compose](https://www.ibm.com/cloud/compose/elasticsearch) available in [IBM Cloud](https://www.ibm.com/cloud/).
 
