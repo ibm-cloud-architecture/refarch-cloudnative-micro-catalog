@@ -35,8 +35,7 @@ jobs:
       - export RABBIT_HOST=$(docker inspect -f "{{ .NetworkSettings.IPAddress }}" rabbitmq)
       # Run Inventory and start it w/ vars
       - docker pull ibmcase/inventory-mp:v2.0.0
-      - docker create --name inventory -p 9444:9443 -p 9081:9080 -e zipkinHost=${zipkinHost} -e zipkinPort=${zipkinPort} -e jdbcURL=jdbc:mysql://${GATEWAY}:9041/inventorydb?useSSL=false -e dbuser=root -e dbpassword=password -e rabbit=${RABBIT_HOST} ibmcase/inventory-mp:v2.0.0
-      - docker start inventory
+      - docker run -d --name inventory -p 9444:9443 -p 9081:9080 -e zipkinHost=${zipkinHost} -e zipkinPort=${zipkinPort} -e jdbcURL=jdbc:mysql://${GATEWAY}:9041/inventorydb?useSSL=false -e dbuser=root -e dbpassword=password -e rabbit=${RABBIT_HOST} ibmcase/inventory-mp:v2.0.0
       # Set mpRestClient URL
       - echo "-Dclient.InventoryServiceClient/mp-rest/url=http://localhost:9081/inventory/rest/inventory/" >> src/main/liberty/config/jvm.options
       - echo "-Delasticsearch_url=http://localhost:9201" >> src/main/liberty/config/jvm.options
@@ -46,6 +45,8 @@ jobs:
       - mvn liberty:start-server -DtestServerHttpPort=${CATALOG_PORT}
       - sleep 25
       # Run Catalog API Test
+      - curl http://localhost:9081/inventory/rest/inventory
+      - curl http://localhost:9082/health
       - bash scripts/api_tests.sh localhost ${CATALOG_PORT}
     - stage: kubernetes build, deploy, and test
       services:
