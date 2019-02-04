@@ -2,10 +2,10 @@ sudo: required
 language: java
 env:
   global:
-    - catalogHttpPort=9082
     - IMAGE_NAME=catalog-mp
     - TAG=travis
     - RELEASE_NAME=catalog
+    - INVENTORY_RELEASE=inventory
 stages:
   - local build and test
 jobs:
@@ -21,26 +21,32 @@ jobs:
       - zipkinHost=localhost
       - zipkinPort=9411
       before_script:
-      - export GATEWAY=$(docker network inspect bridge | grep "Gateway" | awk '/"/{print $2}' | sed -e 's/^"//' -e 's/"$//')
-      # Setup Inventory
-      # Pull and run inventorydb
-      - docker pull ibmcase/bc-inventorydb:v2.0.0
-      - docker run -p 9041:3306 -d --name inventorydb -e MYSQL_ROOT_PASSWORD=password ibmcase/bc-inventorydb:v2.0.0
-      # Run Inventory and start it w/ vars
-      - docker pull ibmcase/inventory-mp:v2.0.0
-      - docker create --name inventory -p 9444:9443 -p 9081:9080 -e zipkinHost=localhost -e zipkinPort=9411 -e jdbcURL=jdbc:mysql://${GATEWAY}:9041/inventorydb?useSSL=false -e dbuser=root -e dbpassword=password -e rabbit=${GATEWAY} ibmcase/inventory-mp:v2.0.0
-      - docker start inventory
+      # Startup RabbitMQ
+      - docker run -d --name rabbitmq rabbitmq
       # Setup elastic search
       - docker pull ibmcase/bluecompute-elasticsearch
       - docker run -d -p 9201:9200 --name elasticsearch ibmcase/bluecompute-elasticsearch #9200 seems arbitrarily taken in Travis
+      # Pull and run inventorydb
+      - docker pull ibmcase/bc-inventorydb:v2.0.0
+      - docker run -p 9041:3306 -d --name inventorydb -e MYSQL_ROOT_PASSWORD=password ibmcase/bc-inventorydb:v2.0.0
+      # Export vars
+      - export GATEWAY=$(docker network inspect bridge | grep "Gateway" | awk '/"/{print $2}' | sed -e 's/^"//' -e 's/"$//')
+      - export RABBIT_HOST=$(docker inspect -f "{{ .NetworkSettings.IPAddress }}" rabbitmq)
+      # Run Inventory and start it w/ vars
+      - docker pull ibmcase/inventory-mp:v2.0.0
+      - docker run -d --name inventory -p 9444:9443 -p 9081:9080 -e zipkinHost=${zipkinHost} -e zipkinPort=${zipkinPort} -e jdbcURL=jdbc:mysql://${GATEWAY}:9041/inventorydb?useSSL=false -e dbuser=root -e dbpassword=password -e rabbit=${RABBIT_HOST} ibmcase/inventory-mp:v2.0.0
       # Set mpRestClient URL
       - echo "-Dclient.InventoryServiceClient/mp-rest/url=http://localhost:9081/inventory/rest/inventory/" >> src/main/liberty/config/jvm.options
+      - echo "-Delasticsearch_url=http://localhost:9201" >> src/main/liberty/config/jvm.options
+      - echo "-Dinventory_health=http://localhost:9081/health" >> src/main/liberty/config/jvm.options
       script:
       - mvn clean install
-      - mvn liberty:start-server -DtestServerHttpPort=$catalogHttpPort
+      - mvn liberty:start-server -DtestServerHttpPort=9082
       - sleep 25
       # Run Catalog API Test
-      - bash scripts/api_tests.sh localhost $catalogHttpPort
+      - curl http://localhost:9081/inventory/rest/inventory
+      - curl http://localhost:9082/health
+      - bash scripts/api_tests.sh
     - stage: kubernetes build, deploy, and test
       services:
       - docker
@@ -54,21 +60,19 @@ jobs:
       # Pull a InvDB
       - docker pull ibmcase/bc-inventorydb:v2.0.0
       # Install MySQL
-      - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb,image=ibmcase/bc-inventorydb,tag=v2.0.0 stable/mysql
+      - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb,image=ibmcase/bc-inventorydb,imageTag=v2.0.0 stable/mysql
       # Run Inventory
-      - helm install --set travis=true --name inventory services-bc-mp/inventory
+      - helm install --set travis=true --name ${INVENTORY_RELEASE} services-bc-mp/inventory
       # Setup ElasticSearch
       - helm install --set clustername=catalog --name es ./chart/ibmcase-elasticsearch
       - MINIKUBE_IP=$(minikube ip)
-      - INVENTORY_NODE_PORT=$(kubectl get service inventory-inventory -o=jsonpath='{.spec.ports[0].nodePort}')
-      - echo "-Dclient.InventoryServiceClient/mp-rest/url=http://${MINIKUBE_IP}:${INVENTORY_NODE_PORT}/inventory/rest/inventory/" >> src/main/liberty/config/jvm.options
       script:
       # Maven Build
       - mvn clean install
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
       # Install Catalog
-      - helm install --set travis=true --set service.minikubeIp=$MINIKUBE_IP --set image.repository=${IMAGE_NAME} --set image.tag=${TAG} --name ${RELEASE_NAME} ./chart/catalog/
+      - helm install --set travis=true --set image.repository=${IMAGE_NAME},image.tag=${TAG} --name ${RELEASE_NAME} ./chart/catalog/
       # Wait for Catalog to be ready
       - kubectl get deployments ${RELEASE_NAME}-catalog -o yaml
       - READY=$(kubectl get deployments ${RELEASE_NAME}-catalog -o yaml | grep "readyReplicas" | awk '{print $2}')

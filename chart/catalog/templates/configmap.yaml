@@ -4,4 +4,8 @@ metadata:
   name: {{ .Release.Name }}-{{ .Chart.Name }}-config
 data:
   jvm.options: |
+    {{ if .Values.travis }}
+    -Dclient.InventoryServiceClient/mp-rest/url=http://{{ .Values.inventoryRelease }}-inventory:9080/inventory/rest/inventory
+    {{ else }}
     -Dclient.InventoryServiceClient/mp-rest/url=http://{{ .Release.Name }}-inventory:9080/inventory/rest/inventory
+    {{ end }}

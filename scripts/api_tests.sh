@@ -20,16 +20,15 @@ function parse_arguments() {
 
 	if [ -z "${CATALOG_PORT}" ]; then
 		echo "CATALOG_PORT not set. Using default key";
-		CATALOG_PORT=9084;
+		CATALOG_PORT=9082;
 	fi
 
 	echo "Using http://${CATALOG_HOST}:${CATALOG_PORT}"
 }
 
 function get_items() {
-	CURL=$(curl -X GET http://${CATALOG_HOST}:${CATALOG_PORT}/catalog/rest/items)
-	# CURL=$(curl -s --max-time 5 http://${CATALOG_HOST}:${CATALOG_PORT}/micro/items | jq '. | length');
-	echo "Found \"${CURL}\""
+	CURL=$(curl -X GET http://${CATALOG_HOST}:${CATALOG_PORT}/catalog/rest/items | jq '.[0].id' | sed -e 's/^"//' -e 's/"$//')
+	echo "Found \"${CURL}\"" # Remove the jq parsing to see whole list
 
 	# CATALOG_POD=$(kubectl get pods | grep catalog-catalog | awk '{print $1}')
   # kubectl describe pod $CATALOG_POD
@@ -38,12 +37,12 @@ function get_items() {
 	# kubectl describe pod $INVENTORY_POD
   # kubectl logs $INVENTORY_POD
 
-	if [ -z "${CURL}" ] || [ ! "${CURL}" -gt "0" ]; then
+	if [[ $CURL != "13405" ]]; then
 		echo "get_items: ❌ could not get items";
         exit 1;
     else
     	echo "get_items: ✅";
-    fi
+	fi
 }
 
 # Setup
