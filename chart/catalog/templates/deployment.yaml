@@ -35,10 +35,13 @@ spec:
           initialDelaySeconds: 35
           periodSeconds: 20
           failureThreshold: 6
+        securityContext:
+          runAsUser: 2000
+          allowPrivilegeEscalation: false
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
         env:
         {{- include "catalog.environmentvariables" . | indent 8 }}
         {{- include "catalog.elasticsearch.environmentvariables" . | indent 8 }}
         - name: INVENTORY_URL
           value: {{ template "catalog.inventory" . }}
-        resources:
-{{ toYaml .Values.resources | indent 10 }}
