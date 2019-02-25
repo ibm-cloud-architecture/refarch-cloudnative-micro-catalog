@@ -12,7 +12,6 @@ export JAVA_OPTS="${JAVA_OPTS} -Djava.security.egd=file:/dev/./urandom"
 add_elasticsearch_certificate
 
 echo "Starting Java application"
-echo $JAVA_OPTS
 
 # Start the application
-exec java ${JAVA_OPTS} -jar /app.jar
+exec java ${JAVA_OPTS} -jar ./app.jar
