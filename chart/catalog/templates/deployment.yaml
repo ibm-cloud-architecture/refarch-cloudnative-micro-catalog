@@ -37,6 +37,8 @@ spec:
           failureThreshold: 6
         resources:
 {{ toYaml .Values.resources | indent 10 }}
+        securityContext:
+        {{- include "catalog.securityContext" . | indent 10 }}
         env:
         {{- include "catalog.environmentvariables" . | indent 8 }}
         {{- include "catalog.elasticsearch.environmentvariables" . | indent 8 }}

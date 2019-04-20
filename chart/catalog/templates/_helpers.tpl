@@ -38,6 +38,10 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
   {{- else }}
   - "set -x; until curl -k ${ES_PROTOCOL}://${ES_HOST}:${ES_PORT}/${ES_HEALTH} | {{ template "catalog.elasticsearch.test" . }}"
   {{- end }}
+  resources:
+{{ toYaml .Values.resources | indent 4 }}
+  securityContext:
+  {{- include "catalog.securityContext" . | indent 4 }}
   env:
   {{- include "catalog.elasticsearch.environmentvariables" . | indent 2 }}
 {{- end }}
@@ -95,6 +99,10 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
   - "/bin/sh"
   - "-c"
   - "until curl ${INVENTORY_URL}; do echo waiting for inventory-service at ${INVENTORY_URL}; sleep 1; done; echo inventory is ready"
+  resources:
+{{ toYaml .Values.resources | indent 4 }}
+  securityContext:
+  {{- include "catalog.securityContext" . | indent 4 }}
   env:
   {{- include "catalog.inventory.environmentvariables" . | indent 2 }}
 {{- end }}
@@ -115,6 +123,13 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     {{- printf "http://%s-inventory:8080" .Release.Name -}}
   {{- end }}
 {{- end -}}
+
+{{/* Catalog Security Context */}}
+{{- define "catalog.securityContext" }}
+{{- range $key, $value := .Values.securityContext }}
+{{ $key }}: {{ $value }}
+{{- end }}
+{{- end }}
 
 {{/* Istio Gateway */}}
 {{- define "catalog.istio.gateway" }}
