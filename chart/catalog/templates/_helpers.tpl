@@ -20,6 +20,8 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{- define "catalog.environmentvariables" }}
 - name: SERVICE_PORT
   value: {{ .Values.service.internalPort | quote }}
+- name: JAVA_TMP_DIR
+  value: /spring-tmp
 {{- end }}
 
 {{/* Catalog Elasticsearch Init Container Template */}}

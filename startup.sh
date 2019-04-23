@@ -8,6 +8,11 @@ export JAVA_OPTS="${JAVA_OPTS} -Xmx${max_heap}m"
 # Set basic java options
 export JAVA_OPTS="${JAVA_OPTS} -Djava.security.egd=file:/dev/./urandom"
 
+# Set java.io.tmpdir to other than /tmp
+if [ -n "$JAVA_TMP_DIR" ]; then
+	export JAVA_OPTS="${JAVA_OPTS} -Djava.io.tmpdir=$JAVA_TMP_DIR"
+fi
+
 # Parse Elasticsearch certificate and add to Java keystore
 add_elasticsearch_certificate
 
