@@ -14,7 +14,7 @@ service:
 
 ingress:
   enabled: false
-  hostname: "catalog.bluecompute.com"
+  hostname: #catalog.bluecompute.com
   path: /micro/items
   annotations:
     ingress.bluemix.net/redirect-to-https: "True"
