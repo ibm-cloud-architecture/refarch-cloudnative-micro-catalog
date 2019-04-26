@@ -41,7 +41,7 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
   - "set -x; until curl -k ${ES_PROTOCOL}://${ES_HOST}:${ES_PORT}/${ES_HEALTH} | {{ template "catalog.elasticsearch.test" . }}"
   {{- end }}
   resources:
-{{ toYaml .Values.resources | indent 4 }}
+  {{- include "catalog.resources" . | indent 4 }}
   securityContext:
   {{- include "catalog.securityContext" . | indent 4 }}
   env:
@@ -102,7 +102,7 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
   - "-c"
   - "until curl ${INVENTORY_URL}; do echo waiting for inventory-service at ${INVENTORY_URL}; sleep 1; done; echo inventory is ready"
   resources:
-{{ toYaml .Values.resources | indent 4 }}
+  {{- include "catalog.resources" . | indent 4 }}
   securityContext:
   {{- include "catalog.securityContext" . | indent 4 }}
   env:
@@ -125,6 +125,14 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     {{- printf "http://%s-inventory:8080" .Release.Name -}}
   {{- end }}
 {{- end -}}
+
+{{/* Catalog Resources */}}
+{{- define "catalog.resources" }}
+limits:
+  memory: {{ .Values.resources.limits.memory }}
+requests:
+  memory: {{ .Values.resources.requests.memory }}
+{{- end }}
 
 {{/* Catalog Security Context */}}
 {{- define "catalog.securityContext" }}
