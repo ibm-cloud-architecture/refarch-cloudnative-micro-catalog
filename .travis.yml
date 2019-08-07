@@ -1,5 +1,8 @@
 sudo: required
+dist: xenial
 language: java
+jdk:
+  - openjdk8
 env:
   global:
     - IMAGE_NAME=catalog-mp
