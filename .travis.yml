@@ -61,12 +61,10 @@ jobs:
       - chmod +x install_minikube_and_helm.sh
       - bash install_minikube_and_helm.sh
       before_script:
-      # Pull a InvDB
-      - docker pull ibmcase/bc-inventorydb:v2.0.0
-      # Install MySQL
-      - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb,image=ibmcase/bc-inventorydb,imageTag=v2.0.0 stable/mysql
-      # Run Inventory
-      - helm install --set travis=true --name ${INVENTORY_RELEASE} services-bc-mp/inventory
+      # Add helm repos for bluecompute services
+      - helm repo add bc-inventory https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/microprofile/chart/release
+      # Run inventory
+      - helm install --set travis.external=true,travis.releaseName=${RELEASE_NAME} --name inventory bc-inventory/inventory
       # Setup ElasticSearch
       - helm install --set clustername=catalog --name es ./chart/ibmcase-elasticsearch
       - MINIKUBE_IP=$(minikube ip)
