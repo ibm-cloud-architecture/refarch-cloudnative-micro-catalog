@@ -56,10 +56,11 @@ jobs:
       env:
       - CHANGE_MINIKUBE_NONE_USER=true
       install:
-        - true
+      # Install minikube and helm
+      - curl -O https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/microprofile/utility_scripts/install_minikube_and_helm.sh
+      - chmod +x install_minikube_and_helm.sh
+      - bash install_minikube_and_helm.sh
       before_script:
-      # Install nsenter, which is needed for minikube to work
-      - bash scripts/install_minikube_and_helm.sh
       # Pull a InvDB
       - docker pull ibmcase/bc-inventorydb:v2.0.0
       # Install MySQL
