@@ -1,0 +1,15 @@
+apiVersion: v1
+entries:
+  catalog:
+  - apiVersion: v1
+    created: "2019-08-06T14:27:23.96815-05:00"
+    description: A Helm chart for Kubernetes
+    digest: e1701304b2bc69358f6c9331de76825387db82da37a6a995b049b6fe0a3ec11f
+    home: https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/tree/microprofile
+    name: catalog
+    sources:
+    - https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/tree/microprofile/catalog
+    urls:
+    - catalog-0.0.1.tgz
+    version: 0.0.1
+generated: "2019-08-06T14:27:23.966983-05:00"
