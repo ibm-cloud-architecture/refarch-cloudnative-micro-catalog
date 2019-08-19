@@ -3,19 +3,14 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-{{ .Values.service.name }}
   labels:
-    chart: '{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
-    release: {{ .Release.Name }}
-    implementation: microprofile
+    {{- include "catalog.labels" . | indent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
   template:
     metadata:
       labels:
-        app: "{{ .Release.Name }}-{{  .Chart.Name }}-selector"
-        release: {{ .Release.Name }}
-        version: "current"
-        implementation: microprofile
+        {{- include "catalog.labels" . | indent 8 }}
     spec:
       containers:
       - name: "{{  .Chart.Name  }}"
@@ -37,9 +32,7 @@ spec:
           timeoutSeconds: 500
 {{ end }}
         resources:
-          requests:
-            cpu: "{{ .Values.image.resources.requests.cpu }}"
-            memory: "{{ .Values.image.resources.requests.memory }}"
+        {{- include "catalog.resources" . | indent 10 }}
         env:
           {{ if .Values.travis }} 
           - name: inventory_health
