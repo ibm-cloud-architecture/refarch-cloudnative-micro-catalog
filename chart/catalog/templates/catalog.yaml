@@ -20,16 +20,20 @@ spec:
 {{ else }}
         readinessProbe:
           httpGet:
+            path: /health
+            port: 9080
+          initialDelaySeconds: 60
+          periodSeconds: 20
+          timeoutSeconds: 60
+          failureThreshold: 6
+        livenessProbe:
+          httpGet:
             path: /
             port: 9080
           initialDelaySeconds: 60
+          periodSeconds: 10
           timeoutSeconds: 60
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 9080
-          initialDelaySeconds: 1500
-          timeoutSeconds: 500
+          failureThreshold: 6
 {{ end }}
         resources:
         {{- include "catalog.resources" . | indent 10 }}

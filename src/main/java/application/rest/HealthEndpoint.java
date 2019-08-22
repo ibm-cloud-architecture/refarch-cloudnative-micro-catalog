@@ -71,17 +71,23 @@ public class HealthEndpoint implements HealthCheck {
 
     @Override
     public HealthCheckResponse call() {
+        System.out.println("Checking elastic search");
         if (!isElasticsearchReady()) {
+            System.out.println("Elastic search checked at url: " + es_url);
             return HealthCheckResponse.named(CatalogService.class.getSimpleName())
                     .withData("Elasticsearch", "DOWN").down()
                     .build();
         }
+        System.out.println("Elastic search up");
 
+        System.out.println("Checking inventory service");
         if (!isInventoryReady()) {
+            System.out.println("Inventory service checked at url: " + inv_url);
             return HealthCheckResponse.named(CatalogService.class.getSimpleName())
                     .withData("Inventory Service", "DOWN").down()
                     .build();
         }
+        System.out.println("Inventory service up");
 
 
         return HealthCheckResponse.named(CatalogService.class.getSimpleName()).withData("Catalog Service", "UP").up().build();
