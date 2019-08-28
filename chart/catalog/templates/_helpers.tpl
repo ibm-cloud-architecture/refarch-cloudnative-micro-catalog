@@ -1,4 +1,4 @@
-{{/* Orders */}}
+{{/* Catalog */}}
 {{- define "catalog.labels" }}
 {{- range $key, $value := .Values.labels }}
 {{ $key }}: {{ $value | quote }}
@@ -12,7 +12,7 @@ helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{- end }}
 
-{{/* Orders Resources */}}
+{{/* Catalog Resources */}}
 {{- define "catalog.resources" }}
 requests:
   cpu: {{ .Values.image.resources.requests.cpu }}
