@@ -12,6 +12,7 @@ image:
     requests:
       cpu: 200m
       memory: 300Mi
+
 service:
   name: catalog
   type: NodePort
@@ -21,8 +22,10 @@ service:
   zipkinName: zipkin
   elasticsearchHost: es-catalog-elasticsearch
   inventory: inventory
+
 volumes:
   mountPath: /opt/ibm/wlp/usr/shared
+
 hpa:
   enabled: false
   minReplicas: 1
@@ -33,15 +36,31 @@ hpa:
     memory:
       targetAverageUtilization: 70
 services:
+
 base:
   enabled: false
   replicaCount: 1
   image:
     tag : v0.9.9
   weight: 100
+
 istio:
   enabled: false
   weight: 100
+  mTLS: SIMPLE
+
+ingress:
+  enabled: false
+  hostname: #catalog.bluecompute.com
+  path: /micro/catalog
+  annotations:
+    ingress.bluemix.net/redirect-to-https: "True"
+  enableTLS: false
+  TLS:
+  - secretName: catalog.bluecompute.com
+    hosts:
+      - catalog.bluecompute.com
+
 travis: false
 authRelease: auth
 inventoryRelease: inventory
