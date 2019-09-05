@@ -42,7 +42,7 @@ metadata:
   name: {{ .Release.Name }}-{{ .Values.service.name }}
 spec:
   hosts:
-    - "orders.bluecompute.com"
+    - "catalog.bluecompute.com"
   http:
   - match:
     - uri:
