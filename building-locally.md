@@ -2,12 +2,13 @@
 
 ## Table of Contents
 
-- [Building the app](#building-the-app)
+- [Building Catalog using Maven](#building-catalog-using-maven)
 - [Setting up Elasticsearch](#setting-up-elasticsearch)
 - [Setting up Zipkin](#setting-up-zipkin)
-- [Running the app and stopping it](#running-the-app-and-stopping-it)
+- [Running Catalog and stopping it](#running-catalog-and-stopping-it)
+- [Deploying Catalog using Helm charts](#deploying-catalog-using-helm-charts)
 
-## Building the app
+## Building Catalog using Maven
 
 To build the application, we used maven build. Maven is a project management tool that is based on the Project Object Model (POM). Typically, people use Maven for project builds, dependencies, and documentation. Maven simplifies the project build. In this task, you use Maven to build the project.
 
@@ -92,7 +93,7 @@ In our sample application, we used Zipkin as our distributed tracing system.
 
 If you want to access the traces for catalog service, run Zipkin as a docker container locally. You can find the instructions and more details [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/blob/microprofile/Zipkin/README.md)
 
-## Running the app and stopping it
+## Running Catalog and stopping it
 
 Before running this application, make sure [Inventory Service](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/blob/microprofile/building-locally.md) is up and running.
 
@@ -169,4 +170,27 @@ Once you do this, you see the below messages.
 [INFO] Finished at: 2018-07-19T11:40:37-05:00
 [INFO] Final Memory: 14M/309M
 [INFO] ------------------------------------------------------------------------
+```
+
+## Deploying Catalog using Helm Charts
+
+The most convenient solution to start the Catalog service uses [Kubernetes](https://kubernetes.io/), as a container orchestration tool, and [Helm](https://helm.sh/), to deploy the necessary containers with the correct configuration. 
+
+The Catalog service requires Inventory and Elastic Search. First, add the helm repo for Inventory with:
+
+```
+helm repo add bc-inventory https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/microprofile/chart/release
+```
+
+Next, install Inventory and Elastic Search with:
+
+```
+helm install --set rabbitmq.enabled=true --name inventory bc-inventory/inventory
+helm install --set clustername=catalog --name es ./chart/ibmcase-elasticsearch
+```
+
+Then run the Catalog service standalone with:
+
+```
+helm install chart/catalog
 ```
