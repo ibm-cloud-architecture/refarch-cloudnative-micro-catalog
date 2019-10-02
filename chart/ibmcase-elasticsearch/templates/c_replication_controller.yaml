@@ -9,6 +9,11 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+{{ toYaml .Values.labels | indent 6 }}
+      release: {{.Release.Name | quote }}
+      chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
   template:
     metadata:
       labels:
