@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-{{ .Values.clustername }}-elasticsearch
@@ -9,10 +9,17 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+{{ toYaml .Values.labels | indent 6 }}
+      release: {{.Release.Name | quote }}
+      chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
   template:
     metadata:
       labels:
 {{ toYaml .Values.labels | indent 8 }}
+        release: {{.Release.Name | quote }}
+        chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     spec:
       volumes:
         {{ template "elasticsearchDataVolume" . }}
