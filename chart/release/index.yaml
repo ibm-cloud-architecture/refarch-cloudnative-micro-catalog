@@ -2,7 +2,18 @@ apiVersion: v1
 entries:
   catalog:
   - apiVersion: v1
-    created: "2019-11-08T15:32:17.157166-06:00"
+    created: "2019-11-20T14:27:13.696694-06:00"
+    description: A Helm chart for Kubernetes
+    digest: 7b0edc3b0a1645487cf23857b0dbf4f15674c7cb34fc113f677abf886989bcf0
+    home: https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/tree/microprofile
+    name: catalog
+    sources:
+    - https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/tree/microprofile/catalog
+    urls:
+    - catalog-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v1
+    created: "2019-11-20T14:27:13.696333-06:00"
     description: A Helm chart for Kubernetes
     digest: e921f705d80d84583621f05e799b7ccf4f73b40167ea553a92988575fc74ceb7
     home: https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/tree/microprofile
@@ -13,7 +24,7 @@ entries:
     - catalog-0.1.1.tgz
     version: 0.1.1
   - apiVersion: v1
-    created: "2019-11-08T15:32:17.156905-06:00"
+    created: "2019-11-20T14:27:13.695395-06:00"
     description: A Helm chart for Kubernetes
     digest: 3dd2deb6a6584010bd10c808344e33b23af33daafa4c5270112b31a2ce214b54
     home: https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/tree/microprofile
@@ -24,7 +35,7 @@ entries:
     - catalog-0.1.0.tgz
     version: 0.1.0
   - apiVersion: v1
-    created: "2019-11-08T15:32:17.156524-06:00"
+    created: "2019-11-20T14:27:13.693659-06:00"
     description: A Helm chart for Kubernetes
     digest: e1701304b2bc69358f6c9331de76825387db82da37a6a995b049b6fe0a3ec11f
     home: https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/tree/microprofile
@@ -36,7 +47,7 @@ entries:
     version: 0.0.1
   ibmcase-elasticsearch:
   - apiVersion: v1
-    created: "2019-11-08T15:32:17.158931-06:00"
+    created: "2019-11-20T14:27:13.69786-06:00"
     description: ElasticSearch
     digest: 0dcb0ddf8628b7c31f938915cd02d11b0564b3f081c3adbd38911efe352dec74
     home: https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/tree/microprofile
@@ -48,7 +59,7 @@ entries:
     - ibmcase-elasticsearch-0.0.2.tgz
     version: 0.0.2
   - apiVersion: v1
-    created: "2019-11-08T15:32:17.15766-06:00"
+    created: "2019-11-20T14:27:13.697306-06:00"
     description: ElasticSearch
     digest: c56cd5ea7a9db593a35d3b61ce28e4b0e08349fea533bec8225950970d751175
     home: https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/tree/microprofile
@@ -59,4 +70,4 @@ entries:
     urls:
     - ibmcase-elasticsearch-0.0.1.tgz
     version: 0.0.1
-generated: "2019-11-08T15:32:17.155908-06:00"
+generated: "2019-11-20T14:27:13.690411-06:00"
